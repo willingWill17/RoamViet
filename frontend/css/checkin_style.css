@@ -1,0 +1,511 @@
+/* Base styling for the check-in page */
+body {
+  background-image: url("../main_site_image/checkin.png");
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+  background-repeat: no-repeat;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.content {
+  width: 100%;
+  padding: 30px 20px;
+  position: relative;
+}
+
+.main-nav a.current {
+  color: #ffffff;
+  text-shadow: 0 0 8px rgba(255, 255, 255, 0.8);
+  position: relative;
+}
+
+/* Improved container styling with reduced height */
+.checkin-container {
+  background: linear-gradient(135deg, rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.6));
+  border-radius: 20px;
+  padding: 30px;
+  max-width: 1200px;
+  margin: 0 auto;
+  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  position: relative;
+  max-height: 85vh;
+}
+
+.checkin-container h1 {
+  font-family: HeadFont, "Segoe UI", sans-serif;
+  font-size: 36px; /* Reduced font size */
+  font-weight: lighter;
+  text-align: center;
+  margin-bottom: 25px; /* Reduced margin */
+  text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.6);
+  color: #fff;
+  letter-spacing: 2px;
+}
+
+/* Form layout improvements */
+.form-wrapper {
+  width: 100%;
+}
+
+.checkin-form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px; /* Reduced gap */
+}
+
+.form-column {
+  flex: 1;
+  min-width: 300px;
+}
+
+/* General form controls styling */
+.form-group {
+  margin-bottom: 15px; /* Reduced margin */
+  position: relative;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 8px; /* Reduced margin */
+  font-size: 16px; /* Reduced font size */
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.95);
+  transition: all 0.3s ease;
+}
+
+.form-group label i {
+  margin-right: 8px;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.form-group select,
+.form-group input[type="text"],
+.form-group input[type="date"],
+.form-group textarea {
+  width: 100%;
+  padding: 12px 15px; /* Reduced padding */
+  background-color: rgba(255, 255, 255, 0.9);
+  border: 2px solid transparent;
+  border-radius: 10px;
+  font-size: 16px;
+  color: #333;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Increased spacing between form elements */
+.form-column .location-group {
+  margin-bottom: 10px; /* Increased from 25px */
+}
+.form-column .date-group {
+  margin-bottom: 10px; /* Increased from 25px */
+}
+.form-column .rating-group {
+  margin-top: 10px; /* Added extra spacing */
+}
+
+.form-column .location-group:after,
+.form-column .date-group:after {
+  content: "";
+  display: block;
+  height: 1px;
+  width: 100%;
+  margin-top: 12px;
+}
+#location,
+#checkin-date {
+  margin-bottom: 10px;
+}
+/* Style for the section title */
+.form-section-title {
+  color: #fff;
+  font-size: 18px;
+  font-weight: 500;
+  margin-bottom: 12px;
+  padding-bottom: 5px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+  text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);
+}
+
+/* Adjust the label to be less prominent now that we have a section title */
+.form-group.date-group label {
+  color: #fff;
+  font-size: 16px;
+  font-weight: 500;
+  text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);
+}
+
+.form-group select:focus,
+.form-group input[type="text"]:focus,
+.form-group input[type="date"]:focus,
+.form-group textarea:focus {
+  outline: none;
+  border-color: rgba(255, 217, 0, 0.5);
+  background-color: #fff;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
+}
+
+.form-group textarea {
+  resize: vertical;
+  min-height: 100px; /* Reduced height */
+  line-height: 1.6;
+}
+
+/* CSS for checkin-date field */
+#checkin-date {
+  width: 100%;
+  padding: 12px 15px; /* Reduced padding */
+  background-color: rgba(255, 255, 255, 0.9);
+  border: 2px solid transparent;
+  border-radius: 10px;
+  font-size: 16px;
+  color: #333;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+#checkin-date:focus {
+  outline: none;
+  border-color: rgba(255, 217, 0, 0.5);
+  background-color: #fff;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
+}
+
+.first-form-group {
+  position: relative;
+  margin-bottom: 15px; /* Reduced margin */
+}
+
+/* Upload area styling */
+.upload-area {
+  border: 2px dashed rgba(255, 255, 255, 0.7);
+  padding: 20px; /* Reduced padding */
+  border-radius: 15px;
+  text-align: center;
+  position: relative;
+  cursor: pointer;
+  margin-bottom: 10px; /* Reduced margin */
+  transition: all 0.3s ease;
+  background-color: rgba(255, 255, 255, 0.1);
+  min-height: 80px; /* Set minimum height */
+}
+
+.upload-area:hover {
+  border-color: rgba(255, 217, 0, 0.7);
+  background-color: rgba(255, 255, 255, 0.15);
+}
+
+.upload-area input[type="file"] {
+  opacity: 0;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  cursor: pointer;
+}
+
+.upload-text {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.upload-text i {
+  font-size: 24px; /* Reduced font size */
+  margin-bottom: 8px; /* Reduced margin */
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.upload-text p {
+  font-size: 14px; /* Reduced font size */
+  color: rgba(255, 255, 255, 0.8);
+}
+
+/* Preview images styling - compact */
+.preview-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 10px;
+  max-height: 110px; /* Limit height */
+  overflow-y: auto;
+}
+
+.preview-container img {
+  width: 80px; /* Reduced size */
+  height: 80px; /* Reduced size */
+  object-fit: cover;
+  border-radius: 8px;
+  border: 2px solid rgba(255, 255, 255, 0.4);
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.preview-container img:hover {
+  transform: scale(1.05);
+  border-color: rgba(255, 217, 0, 0.7);
+}
+
+/* Star Rating System - compact */
+.rating-group {
+  margin-bottom: 15px; /* Reduced margin */
+}
+
+.rating-group label {
+  margin-bottom: 10px; /* Reduced margin */
+}
+
+.stars {
+  display: flex;
+  justify-content: flex-start;
+  position: relative;
+  margin-bottom: 15px; /* Reduced margin */
+}
+
+.star {
+  font-size: 0;
+  position: relative;
+  cursor: pointer;
+  margin: 0 4px; /* Reduced margin */
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.star:before {
+  content: "★";
+  font-size: 30px; /* Reduced font size */
+  background: linear-gradient(135deg, #cfcfcf, #8a8a8a);
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+  filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.3));
+  transition: all 0.4s ease;
+}
+
+.star.hover:before,
+.star.active:before {
+  background: linear-gradient(135deg, #ffeb3b, #ff9800);
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+  filter: drop-shadow(0 0 5px rgba(255, 217, 0, 0.5));
+}
+
+.star.active:before {
+  transform: scale(1.1);
+}
+
+/* Form action button styling - OUTSIDE CONTAINER */
+.form-actions {
+  text-align: center;
+  position: relative;
+  z-index: 10;
+}
+
+.detail-btn {
+  background: linear-gradient(135deg, #ffd900, #ff9500);
+  color: #333;
+  font-size: 18px;
+  font-weight: 600;
+  padding: 16px 50px;
+  border: none;
+  border-radius: 50px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  display: inline-block;
+}
+
+.detail-btn i {
+  margin-right: 10px;
+}
+
+.detail-btn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
+  background: linear-gradient(135deg, #ffdf20, #ffaa20);
+}
+
+.detail-btn:active {
+  transform: translateY(1px);
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+}
+
+/* Error styling */
+.has-error select,
+.has-error input,
+.has-error textarea,
+.has-error .upload-area {
+  border-color: #ff5252 !important;
+}
+
+.error-message {
+  color: #ff5252;
+  font-size: 12px; /* Reduced font size */
+  margin-top: 4px; /* Reduced margin */
+  display: flex;
+  align-items: center;
+  animation: fadeIn 0.3s ease;
+}
+
+.error-message i {
+  margin-right: 5px;
+}
+
+/* Notification styling */
+.notification {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  padding: 15px 25px;
+  border-radius: 10px;
+  color: white;
+  font-weight: 500;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+  display: flex;
+  align-items: center;
+  transform: translateX(120%);
+  transition: transform 0.3s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+  z-index: 1000;
+}
+
+.notification.success {
+  background-color: #4caf50;
+}
+
+.notification.error {
+  background-color: #f44336;
+}
+
+.notification.show {
+  transform: translateX(0);
+}
+
+.notification i {
+  margin-right: 10px;
+  font-size: 18px;
+}
+
+/* Image preview styling */
+.image-preview {
+  position: relative;
+  transition: opacity 0.3s ease;
+}
+
+.remove-image {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  background: #ff5252;
+  color: white;
+  border: none;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.image-preview:hover .remove-image {
+  opacity: 1;
+}
+
+/* Loading indicator */
+.loading-indicator {
+  color: white;
+  display: flex;
+  align-items: center;
+  margin: 10px 0;
+  font-size: 14px; /* Reduced font size */
+}
+
+.loading-indicator i {
+  margin-right: 10px;
+}
+
+/* Star hover effects */
+.star.hover {
+  color: rgba(255, 217, 0, 0.7);
+}
+
+.star.pulse {
+  animation: pulse 0.3s ease;
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.2);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Responsive adjustments */
+@media (max-width: 992px) {
+  .checkin-container {
+    padding: 25px;
+  }
+
+  .form-actions {
+    margin-top: 15px;
+  }
+}
+
+@media (max-width: 768px) {
+  .checkin-container {
+    padding: 20px;
+  }
+
+  .checkin-container h1 {
+    font-size: 30px;
+  }
+
+  .checkin-form {
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .form-group label {
+    font-size: 15px;
+  }
+
+  .form-group select,
+  .form-group input[type="text"],
+  .form-group textarea {
+    padding: 10px 14px;
+  }
+
+  .form-actions {
+    margin-top: 15px;
+  }
+
+  .detail-btn {
+    width: 100%;
+    padding: 12px 20px;
+    font-size: 16px;
+  }
+}

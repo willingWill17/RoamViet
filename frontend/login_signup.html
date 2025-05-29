@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>RoamViet - Sign Up</title>
+    <link rel="icon" href="logo/logo.png" type="image/png" />
+    <link rel="stylesheet" href="css/login_signup_style.css" />
+  </head>
+  <body>
+    <h1 class="title">
+      <img
+        src="logo/logo-black.png"
+        alt="RoamViet Logo"
+        style="height: 50px; margin-right: 10px"
+      />RoamViet
+    </h1>
+
+    <div class="signup-container">
+      <h2 class="signup-title">Sign up</h2>
+      <form class="signup-form" onsubmit="handleSignUp(event)">
+        <input type="text" id="username" placeholder="Username" required />
+        <input type="email" id="email" placeholder="Email" required />
+        <input type="password" id="password" placeholder="Password" required />
+        <input
+          type="password"
+          id="confirm-password"
+          placeholder="Confirm Password"
+          required
+        />
+        <button type="submit" class="signup-btn">Create Account</button>
+      </form>
+      <p class="login-text">
+        Already have an account?
+        <a href="login.html" class="login-link">Login</a>
+      </p>
+    </div>
+    <script src="script/accounts.js"></script>
+  </body>
+</html>

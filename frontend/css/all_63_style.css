@@ -1,0 +1,230 @@
+/* Base styles */
+body {
+  background-image: url("../main_site_image/63.png");
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+  background-repeat: no-repeat;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  color: #ffffff;
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+}
+
+/* Content container */
+.content {
+  width: 90%;
+  max-width: 1400px;
+  padding: 20px;
+  position: relative;
+  box-sizing: border-box;
+  margin: 30px auto 0;
+  min-height: calc(100vh - 100px);
+  display: flex;
+  flex-direction: column;
+}
+
+/* Navigation styling */
+.main-nav a.current {
+  color: #ffffff;
+  text-shadow: 0 0 8px rgba(255, 255, 255, 0.8);
+  position: relative;
+}
+/* Base styles */
+
+/* Map container styles */
+.map-info-container {
+  display: flex;
+  position: relative;
+  width: 100%;
+  height: 80vh;
+  margin-top: 20px;
+}
+
+.map-container {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+}
+
+/* SVG map styling */
+.province {
+  fill: #ffffff;
+  stroke: #0c7489;
+  stroke-width: 0.5;
+  cursor: pointer;
+  transition: fill 0.3s ease, stroke-width 0.3s ease;
+}
+
+.province:hover {
+  fill: #e0e0e0;
+  stroke-width: 1;
+}
+
+.province.selected {
+  fill: #0c7489;
+  stroke-width: 1;
+}
+
+/* Search bar styles */
+.search-bar {
+  width: 100%;
+  padding: 12px 20px;
+  margin: 20px 0;
+  border: none;
+  border-radius: 30px;
+  background-color: rgba(255, 255, 255, 0.8);
+  font-size: 16px;
+  color: #333;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+.search-bar:focus {
+  outline: none;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  background-color: rgba(255, 255, 255, 0.95);
+}
+
+/* Reset button style */
+.reset-map-button {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  padding: 8px 16px;
+  background-color: #0c7489;
+  color: #ffffff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  display: none;
+  z-index: 50;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+  font-weight: bold;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.reset-map-button:hover {
+  background-color: #095b6a;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
+.reset-map-button:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+/* Province info panel styling */
+.province-info-panel {
+  position: absolute;
+  right: 20px;
+  top: 20px;
+  width: 400px;
+  background-color: rgba(0, 0, 0, 0.7);
+  padding: 20px;
+  border-radius: 8px;
+  color: #ffffff;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+  z-index: 100;
+  max-width: calc(100% - 40px);
+  backdrop-filter: blur(5px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.province-info-panel h2 {
+  margin-top: 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+  padding-bottom: 10px;
+  color: #0c7489;
+  font-size: 24px;
+}
+
+.province-info-panel p {
+  line-height: 1.6;
+  margin-bottom: 20px;
+}
+
+.province-attractions h3 {
+  margin-bottom: 10px;
+  font-size: 18px;
+  color: #0c7489;
+}
+
+.province-attractions ul {
+  padding-left: 20px;
+  margin-top: 0;
+}
+
+.province-attractions li {
+  margin-bottom: 8px;
+}
+
+.read-more-btn {
+  padding: 8px 16px;
+  background-color: #0c7489;
+  color: #ffffff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-top: 15px;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+  font-weight: bold;
+}
+
+.read-more-btn:hover {
+  background-color: #095b6a;
+  transform: translateY(-2px);
+}
+
+.read-more-btn:active {
+  transform: translateY(0);
+}
+
+/* Province info panel animations */
+.province-info-panel {
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Make the map container responsive */
+@media screen and (max-width: 768px) {
+  .map-info-container {
+    flex-direction: column;
+    height: auto;
+  }
+
+  .map-container {
+    height: 50vh;
+  }
+
+  .province-info-panel {
+    position: relative !important;
+    width: 100% !important;
+    right: 0 !important;
+    top: 0 !important;
+    margin-top: 20px;
+  }
+
+  .reset-map-button {
+    top: 10px;
+    left: 10px;
+    padding: 6px 12px;
+    font-size: 14px;
+  }
+}

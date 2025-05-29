@@ -1,0 +1,315 @@
+body {
+  background-image: url("../main_site_image/schedule.png");
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+  background-repeat: no-repeat;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  color: #ffffff;
+  margin: 0;
+  padding: 0;
+}
+
+/* Add space for the header */
+.content {
+  width: 90%;
+  max-width: 1200px;
+  padding: 20px;
+  position: relative;
+  box-sizing: border-box;
+  margin: 0px auto 0;
+}
+
+.main-nav a.current {
+  color: #ffffff;
+  text-shadow: 0 0 8px rgba(255, 255, 255, 0.8);
+  position: relative;
+}
+
+/* Schedule Container */
+.schedule-container {
+  display: flex;
+  justify-content: space-between;
+  gap: 15px;
+  margin-bottom: 15px;
+}
+
+/* Location Panel */
+.location-panel {
+  flex: 0 0 28%;
+  background-color: rgba(0, 0, 0, 0.75);
+  border-radius: 12px;
+  padding: 15px;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.location-header h2,
+.calendar-section h2,
+.itinerary-panel h2 {
+  margin-top: 0;
+  color: #ffffff;
+  font-size: 1.2rem;
+  font-weight: 500;
+  margin-bottom: 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+  padding-bottom: 8px;
+}
+
+.province-selector {
+  margin-bottom: 12px;
+}
+
+.province-dropdown {
+  width: 100%;
+  padding: 8px;
+  background-color: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 6px;
+  color: #ffffff;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+/* Add styles for the dropdown options */
+.province-dropdown option {
+  background-color: #172439; /* Dark blue background for options */
+  color: #ffffff; /* White text for options */
+}
+
+/* Style for the selected option when dropdown is open */
+.province-dropdown option:checked {
+  background-color: #2c3e50; /* Slightly lighter blue for the selected option */
+  color: #ffffff;
+}
+
+/* Hover state for options */
+.province-dropdown option:hover {
+  background-color: #3a506b; /* Even lighter blue for hover state */
+}
+
+/* Focus state for the dropdown */
+.province-dropdown:focus {
+  outline: none;
+  border-color: #45b6fe;
+  box-shadow: 0 0 0 2px rgba(69, 182, 254, 0.3);
+}
+
+.selected-province {
+  margin-top: 12px;
+  font-size: 20px;
+  font-weight: bold;
+  text-align: center;
+  color: #ffffff;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+}
+
+/* Calendar Styling */
+.calendar-controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.month-display {
+  font-size: 16px;
+  font-weight: bold;
+  color: #ff3b3b;
+}
+
+.month-nav-btn {
+  background: none;
+  border: none;
+  color: #ffffff;
+  font-size: 18px;
+  cursor: pointer;
+  width: 26px;
+  height: 26px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(255, 255, 255, 0.1);
+  border-radius: 50%;
+}
+
+.month-nav-btn:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+.weekdays {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  text-align: center;
+  font-weight: bold;
+  margin-bottom: 8px;
+  font-size: 0.8rem;
+}
+
+.weekdays div {
+  padding: 4px;
+  color: #dddddd;
+}
+
+.days {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 3px;
+}
+
+.days div {
+  padding: 6px 0;
+  text-align: center;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+  font-size: 0.9rem;
+  position: relative; /* Added for absolute positioning of effects */
+}
+
+.days div:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+  transform: scale(1.05);
+}
+
+/* Enhanced selected day styling */
+.days div.selected {
+  background-color: #ff3b3b; /* Bright red to match your "today" border */
+  color: white;
+  font-weight: bold;
+  box-shadow: 0 0 4px rgba(255, 255, 255, 0.5);
+  transform: scale(1.1); /* Slightly larger */
+  z-index: 2; /* Ensure it stays above other days */
+}
+
+/* Enhanced date range styling */
+.days div.range {
+  background-color: rgba(255, 59, 59, 0.3);
+  position: relative;
+}
+
+/* Add a subtle connecting effect between range days */
+.days div.range:not(.selected):after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(
+    to right,
+    rgba(255, 59, 59, 0.1),
+    rgba(255, 59, 59, 0.2)
+  );
+  z-index: 1;
+}
+
+.days div.today {
+  border: 1px solid #ff3b3b;
+}
+
+/* Current day + selected styling */
+.days div.today.selected {
+  border: 2px solid white;
+}
+
+.date-range {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 12px;
+  background-color: rgba(255, 255, 255, 0.1);
+  padding: 10px;
+  border-radius: 6px;
+  font-size: 0.9rem; /* Added smaller font size */
+}
+
+.date-label {
+  font-weight: bold;
+  margin-right: 4px;
+}
+
+/* Itinerary Panel */
+.itinerary-panel {
+  flex: 0 0 68%;
+  background-color: rgba(0, 0, 0, 0.75);
+  border-radius: 12px;
+  padding: 15px;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
+}
+
+.itinerary-content {
+  min-height: 350px;
+  display: flex;
+  flex-direction: column;
+}
+
+.empty-itinerary-message {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: rgba(255, 255, 255, 0.6);
+  text-align: center;
+  padding: 30px;
+  font-size: 0.9rem;
+}
+
+/* Controls Bar */
+.controls-bar {
+  background-color: rgba(18, 28, 45, 0.7);
+  border-radius: 12px;
+  padding: 12px;
+  display: flex;
+  justify-content: center;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 12px;
+}
+
+.control-btn {
+  width: 36px;
+  height: 36px;
+  background-color: rgba(255, 255, 255, 0.1);
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.control-btn:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+.control-btn img {
+  width: 18px;
+  height: 18px;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .schedule-container {
+    flex-direction: column;
+  }
+
+  .location-panel,
+  .itinerary-panel {
+    flex: 0 0 100%;
+  }
+
+  /* Adjust top margin for mobile */
+  .content {
+    margin-top: 60px; /* Slightly smaller margin on mobile */
+    width: 95%; /* Wider on mobile */
+  }
+}
+
+/* Add a style for the header to ensure it's fixed or has a defined height */

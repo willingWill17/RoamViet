@@ -1,0 +1,262 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap');
+
+:root {
+    --primary-color: #3498db;
+    --secondary-color: #2c3e50;
+    --accent-color: #e74c3c;
+    --bg-color: #121212;
+    --box-color: rgb(255,255,255,0.5);
+    --text-dark: #333333;
+    --text-light: #ffffff;
+    --box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+    --transition-speed: 0.3s;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Montserrat', Arial, sans-serif;
+    background-color: var(--bg-color);
+    color: var(--text-dark);
+    margin: 0;
+    padding: 0;
+    transition: background-color var(--transition-speed);
+}
+
+.header {
+    background-color: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(10px);
+    padding: 15px 30px;
+    margin-bottom: 30px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    text-decoration: none;
+}
+
+.back-btn {
+    background-color: var(--primary-color);
+    color: var(--text-light);
+    border: none;
+    padding: 10px 20px;
+    font-weight: 600;
+    border-radius: 50px;
+    cursor: pointer;
+    transition: transform var(--transition-speed), background-color var(--transition-speed);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    text-decoration: none;
+}
+
+
+.back-btn:hover {
+    background-color: #2980b9;
+    transform: translateY(-2px);
+}
+
+.container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 30px;
+    max-width: 1300px;
+    margin: 0 auto;
+    padding: 0 30px 50px;
+}
+
+/* Content boxes */
+.content-box {
+    background-color: var(--box-color);
+    border-radius: 15px;
+    padding: 30px;
+    height: 100%;
+    box-shadow: var(--box-shadow);
+    transition: transform var(--transition-speed), box-shadow var(--transition-speed);
+}
+
+.content-box:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+}
+
+/* Province detail panel */
+.province-detail {
+    flex: 1;
+    min-width: 350px;
+    height: 450px;
+}
+
+.province-name {
+    font-size: 42px;
+    margin-bottom: 20px;
+    font-weight: 700;
+    color: var(--secondary-color);
+    position: relative;
+    padding-bottom: 15px;
+}
+
+.province-name::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 80px;
+    height: 4px;
+    background-color: var(--primary-color);
+    border-radius: 2px;
+}
+
+.province-description {
+    margin-bottom: 60px;
+    font-size: 18px;
+    line-height: 1.6;
+    color: #555;
+}
+
+.download-btn {
+    background-color: var(--accent-color);
+    color: var(--text-light);
+    border: none;
+    padding: 12px 25px;
+    border-radius: 50px;
+    position: absolute;
+    bottom: 30px;
+    right: 30px;
+    cursor: pointer;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: transform var(--transition-speed), background-color var(--transition-speed);
+}
+
+.download-btn:hover {
+    background-color: #c0392b;
+    transform: translateY(-2px);
+}
+
+/* Gallery panel */
+.gallery {
+    flex: 1;
+    min-width: 350px;
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+}
+
+.main-image {
+    position: relative;
+    height: 250px;
+}
+
+.main-image .content-box {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+}
+
+.thumbnail-container {
+    display: flex;
+    gap: 20px;
+    justify-content: space-between;
+}
+
+.thumbnail {
+    flex: 1;
+    height: 170px;
+    overflow: hidden;
+    cursor: pointer;
+}
+
+.thumbnail .content-box {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    transition: transform var(--transition-speed);
+}
+
+.thumbnail:hover .content-box {
+    transform: translateY(-5px) scale(1.03);
+}
+
+.image-placeholder {
+    margin-bottom: 15px;
+    font-size: 18px;
+    color: #999;
+    width: 100%;
+    height: 70%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #f5f5f5;
+    border-radius: 8px;
+}
+
+.image-name {
+    font-weight: 600;
+    font-size: 18px;
+    color: var(--secondary-color);
+    text-align: center;
+}
+
+/* Animation for image loading */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.province-detail, .main-image, .thumbnail {
+    animation: fadeIn 0.8s ease-in-out;
+}
+
+.thumbnail:nth-child(1) { animation-delay: 0.1s; }
+.thumbnail:nth-child(2) { animation-delay: 0.2s; }
+.thumbnail:nth-child(3) { animation-delay: 0.3s; }
+
+/* Responsive adjustments */
+@media (max-width: 992px) {
+    .container {
+        flex-direction: column;
+    }
+    
+    .province-detail, .gallery {
+        width: 100%;
+    }
+    
+    .province-detail {
+        height: auto;
+        min-height: 350px;
+    }
+}
+
+@media (max-width: 768px) {
+    .thumbnail-container {
+        flex-wrap: wrap;
+    }
+    
+    .thumbnail {
+        min-width: calc(50% - 10px);
+    }
+}
+
+@media (max-width: 576px) {
+    .container {
+        padding: 0 15px 30px;
+    }
+    
+    .thumbnail {
+        min-width: 100%;
+    }
+    
+    .province-name {
+        font-size: 32px;
+    }
+}

@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>RoamViet - Explore Vietnam</title>
+    <link rel="icon" href="logo/logo-black.png" type="image/png" />
+    <link rel="stylesheet" href="css/login_signup_style.css" />
+    <script src="script/accounts.js"></script>
+  </head>
+  <body>
+    <h1 class="title">
+      <img
+        src="logo/logo-black.png"
+        alt="RoamViet Logo"
+        style="height: 50px; margin-right: 10px"
+      />RoamViet
+    </h1>
+
+    <div class="container">
+      <div class="login-container">
+        <h2 class="login-title">Login</h2>
+        <form class="login-form" onsubmit="handleLogin(event)">
+          <input type="text" id="email" placeholder="Email" required />
+          <input
+            type="password"
+            id="password"
+            placeholder="Password"
+            required
+          />
+          <button type="submit" class="login-btn">Login</button>
+        </form>
+        <p class="signup-text">
+          Don't have an account?
+          <a href="login_signup.html" class="signup-link">Sign up</a>
+        </p>
+        <p class="change-password">
+          Forgot your password?
+          <a href="login_signup.html" class="signup-link">Sign up</a>
+        </p>
+      </div>
+
+      <div class="photos-container">
+        <div class="polaroid" style="transform: rotate(-6deg)">
+          <img src="login_signup_image/2.png" alt="Ha Noi" />
+        </div>
+        <div class="polaroid featured" style="z-index: 3">
+          <img src="login_signup_image/1.png" alt="Sai Gon" />
+        </div>
+        <div class="polaroid" style="transform: rotate(5deg)">
+          <img src="login_signup_image/3.png" alt="Da Nang" />
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

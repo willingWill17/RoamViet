@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Hồ sơ cá nhân</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="css/profile_style.css" />
+  </head>
+  <body>
+    <div class="profile-box">
+      <h1>HỒ SƠ CÁ NHÂN</h1>
+
+      <div class="avatar-wrapper">
+        <img
+          class="avatar"
+          id="avatarPreview"
+          src="https://i.pravatar.cc/150?img=47"
+          alt="Avatar Người Dùng"
+        />
+        <label class="avatar-upload">
+          Đổi ảnh đại diện
+          <input type="file" accept="image/*" onchange="changeAvatar(event)" />
+        </label>
+      </div>
+
+      <div class="info">
+        <label for="username">Username</label>
+        <input type="text" id="username" value="thangnguyen" readonly />
+
+        <label for="email">Email</label>
+        <input
+          type="email"
+          id="email"
+          value="travel.lover@gmail.com"
+          readonly
+        />
+
+        <label for="password">Mật khẩu</label>
+        <div class="password-wrapper">
+          <input
+            type="password"
+            id="password"
+            placeholder="Nhập mật khẩu mới"
+          />
+          <span class="toggle-password" onclick="togglePassword()">👁️</span>
+        </div>
+        <div id="strengthBar" class="strength-bar"></div>
+      </div>
+
+      <div class="button-group">
+        <a href="main_site.html" class="back-button">Quay lại Trang chủ</a>
+        <button class="edit-button">Lưu thay đổi</button>
+      </div>
+    </div>
+
+    <script src="script/profile_script.js"></script>
+  </body>
+</html>

@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>RoamViet - 63 tỉnh thành</title>
+    <link rel="icon" href="logo/logo-black.png" type="image/png" />
+    <link rel="stylesheet" href="css/main_site_style.css" />
+    <link rel="stylesheet" href="css/all_63_style.css" />
+  </head>
+  <body>
+    <header>
+      <div class="logo">
+        <img src="logo/logo-white.png" alt="RoamViet Logo" />
+        <span class="logo-text"><a href="main_site.html">RoamViet</a></span>
+      </div>
+      <nav>
+        <ul class="main-nav">
+          <li><a href="checkin.html">Check-in</a></li>
+          <li>
+            <a id="scheduleIcon" class="icon profile">Schedule</a>
+          </li>
+          <li><a href="all_63.html" class="current">63 tỉnh thành</a></li>
+        </ul>
+      </nav>
+      <div class="contact-icons">
+        <a href="contact.html" class="icon phone">
+          <img src="logo/phone-icon-white.png" alt="Phone" />
+        </a>
+        <a href="contact.html" class="icon email">
+          <img src="logo/email-icon-white.png" alt="Email" />
+        </a>
+        <a id="profileIcon" class="icon profile" href="#">
+          <img src="logo/profile-icon-white.png" alt="Profile" />
+        </a>
+      </div>
+    </header>
+
+    <div class="content">
+      <input
+        type="text"
+        class="search-bar"
+        placeholder="Tìm kiếm tỉnh thành..."
+      />
+
+      <div class="map-info-container">
+        <div class="map-container"></div>
+      </div>
+    </div>
+    <script src="script/all_63_script.js"></script>
+  </body>
+</html>
