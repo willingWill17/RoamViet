@@ -1,12 +1,13 @@
 <!DOCTYPE html>
-<html lang="vi">
+<html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>RoamViet - Schedule</title>
+    <title>RoamViet - Travel Schedules</title>
     <link rel="icon" href="logo/logo-black.png" type="image/png" />
     <link rel="stylesheet" href="css/main_site_style.css" />
     <link rel="stylesheet" href="css/schedule_style.css" />
+    <script src="script/accounts.js"></script>
   </head>
   <body>
     <header>
@@ -19,6 +20,7 @@
           <li><a href="checkin.html">Check-in</a></li>
           <li><a href="schedule.html" class="current">Schedule</a></li>
           <li><a href="all_63.html">63 tỉnh thành</a></li>
+          <li><a href="messaging.html">Tin nhắn</a></li>
         </ul>
       </nav>
       <div class="contact-icons">
@@ -28,140 +30,454 @@
         <a href="contact.html" class="icon email">
           <img src="logo/email-icon-white.png" alt="Email" />
         </a>
-
         <a href="profile.html" class="icon profile">
           <img src="logo/profile-icon-white.png" alt="Profile" />
         </a>
+        <button
+          onclick="logout()"
+          class="icon logout"
+          style="background: none; border: none; cursor: pointer"
+        >
+          <img
+            src="logo/logout-icon-white.png"
+            alt="Logout"
+            style="width: 24px; height: 24px"
+          />
+        </button>
       </div>
     </header>
 
     <div class="content">
       <div class="schedule-container">
-        <!-- Left Panel - Location & Calendar -->
-        <div class="location-panel">
-          <div class="location-header">
-            <h2>Địa điểm tham quan</h2>
-            <div class="province-selector">
-              <select id="provinceSelect" class="province-dropdown">
-                <option value="" disabled selected>Chọn tỉnh thành</option>
-                <option value="hanoi">Hà Nội</option>
-                <option value="hochiminh">TP. Hồ Chí Minh</option>
-                <option value="haiphong">Hải Phòng</option>
-                <option value="thuathienhue">Thừa Thiên - Huế</option>
-                <option value="danang">Đà Nẵng</option>
-                <option value="cantho">Cần Thơ</option>
-                <option value="angiang">An Giang</option>
-                <option value="bariavungtau">Bà Rịa - Vũng Tàu</option>
-                <option value="bacgiang">Bắc Giang</option>
-                <option value="backan">Bắc Kạn</option>
-                <option value="baclieu">Bạc Liêu</option>
-                <option value="bacninh">Bắc Ninh</option>
-                <option value="bentre">Bến Tre</option>
-                <option value="binhdinh">Bình Định</option>
-                <option value="binhduong">Bình Dương</option>
-                <option value="binhphuoc">Bình Phước</option>
-                <option value="binhthuan">Bình Thuận</option>
-                <option value="camau">Cà Mau</option>
-                <option value="caobang">Cao Bằng</option>
-                <option value="daklak">Đắk Lắk</option>
-                <option value="daknong">Đắk Nông</option>
-                <option value="dienbien">Điện Biên</option>
-                <option value="dongnai">Đồng Nai</option>
-                <option value="dongthap">Đồng Tháp</option>
-                <option value="gialai">Gia Lai</option>
-                <option value="hagiang">Hà Giang</option>
-                <option value="hatinh">Hà Tĩnh</option>
-                <option value="haiduong">Hải Dương</option>
-                <option value="hanam">Hà Nam</option>
-                <option value="haugiang">Hậu Giang</option>
-                <option value="hoabinh">Hòa Bình</option>
-                <option value="hungyen">Hưng Yên</option>
-                <option value="khanhhoa">Khánh Hòa</option>
-                <option value="kiengiang">Kiên Giang</option>
-                <option value="kontum">Kon Tum</option>
-                <option value="laichau">Lai Châu</option>
-                <option value="lamdong">Lâm Đồng</option>
-                <option value="langson">Lạng Sơn</option>
-                <option value="laocai">Lào Cai</option>
-                <option value="longan">Long An</option>
-                <option value="namdinh">Nam Định</option>
-                <option value="nghean">Nghệ An</option>
-                <option value="ninhbinh">Ninh Bình</option>
-                <option value="ninhthuan">Ninh Thuận</option>
-                <option value="phutho">Phú Thọ</option>
-                <option value="phuyen">Phú Yên</option>
-                <option value="quangbinh">Quảng Bình</option>
-                <option value="quangnam">Quảng Nam</option>
-                <option value="quangngai">Quảng Ngãi</option>
-                <option value="quangninh">Quảng Ninh</option>
-                <option value="quangtri">Quảng Trị</option>
-                <option value="soctrang">Sóc Trăng</option>
-                <option value="sonla">Sơn La</option>
-                <option value="tayninh">Tây Ninh</option>
-                <option value="thaibinh">Thái Bình</option>
-                <option value="thainguyen">Thái Nguyên</option>
-                <option value="thanhhoa">Thanh Hóa</option>
-                <option value="tiengiang">Tiền Giang</option>
-                <option value="travinh">Trà Vinh</option>
-                <option value="tuyenquang">Tuyên Quang</option>
-                <option value="vinhlong">Vĩnh Long</option>
-                <option value="vinhphuc">Vĩnh Phúc</option>
-                <option value="yenbai">Yên Bái</option>
-              </select>
-              <div class="selected-province">
-                <span id="displayedProvince">Chọn địa điểm</span>
-              </div>
-            </div>
-          </div>
-
-          <div class="calendar-section">
-            <h2>Thời gian lưu trú dự kiến</h2>
-            <div class="calendar-controls">
-              <button id="prevMonth" class="month-nav-btn">&lt;</button>
-              <div id="currentMonth" class="month-display">Jan 2024</div>
-              <button id="nextMonth" class="month-nav-btn">&gt;</button>
-            </div>
-            <div class="calendar" id="calendar">
-              <div class="weekdays">
-                <div>Sun</div>
-                <div>Mon</div>
-                <div>Tue</div>
-                <div>Wed</div>
-                <div>Thu</div>
-                <div>Fri</div>
-                <div>Sat</div>
-              </div>
-              <div class="days" id="calendarDays">
-                <!-- Days will be generated by JavaScript -->
-              </div>
-            </div>
-            <div class="date-range">
-              <div class="start-date">
-                <span class="date-label">Từ:</span>
-                <span id="startDate" class="date-value">Chọn ngày</span>
-              </div>
-              <div class="end-date">
-                <span class="date-label">Đến:</span>
-                <span id="endDate" class="date-value">Chọn ngày</span>
-              </div>
-            </div>
-          </div>
+        <!-- Header Section -->
+        <div class="schedule-header">
+          <h1>My Travel Schedules</h1>
+          <button id="createScheduleBtn" class="create-btn">
+            <span>+</span> Create New Schedule
+          </button>
         </div>
 
-        <!-- Right Panel - Itinerary -->
-        <div class="itinerary-panel">
-          <h2>Lịch trình</h2>
-          <div class="itinerary-content" id="itineraryContent">
-            <div class="empty-itinerary-message">
-              <p>
-                Vui lòng chọn địa điểm và thời gian để xem và lập lịch trình
-              </p>
+        <!-- Schedules List -->
+        <div class="schedules-grid" id="schedulesGrid">
+          <div class="loading-message">Loading your schedules...</div>
+        </div>
+
+        <!-- Empty State -->
+        <div class="empty-state" id="emptyState" style="display: none">
+          <h3>No schedules yet</h3>
+          <p>
+            Create your first travel schedule to start planning your adventure!
+          </p>
+          <button class="create-btn" onclick="openCreateModal()">
+            <span>+</span> Create Your First Schedule
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Create/Edit Schedule Modal -->
+    <div id="scheduleModal" class="modal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2 id="modalTitle">Create New Schedule</h2>
+          <span class="close">&times;</span>
+        </div>
+        <div class="modal-body">
+          <form id="scheduleForm">
+            <div class="form-group">
+              <label for="scheduleTitle">Schedule Title *</label>
+              <input
+                type="text"
+                id="scheduleTitle"
+                required
+                placeholder="e.g., Amazing Vietnam Adventure"
+              />
             </div>
+
+            <div class="form-group">
+              <label for="scheduleDescription">Description</label>
+              <textarea
+                id="scheduleDescription"
+                rows="3"
+                placeholder="Describe your travel plans..."
+              ></textarea>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="startDate">Start Date *</label>
+                <input type="date" id="startDate" required />
+              </div>
+              <div class="form-group">
+                <label for="endDate">End Date *</label>
+                <input type="date" id="endDate" required />
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="budget">Budget</label>
+                <input type="number" id="budget" placeholder="0" min="0" />
+              </div>
+              <div class="form-group">
+                <label for="currency">Currency</label>
+                <select id="currency">
+                  <option value="VND">VND (Vietnamese Dong)</option>
+                  <option value="USD">USD (US Dollar)</option>
+                  <option value="EUR">EUR (Euro)</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="tags">Tags (optional)</label>
+              <input
+                type="text"
+                id="tags"
+                placeholder="adventure, family, budget, luxury (comma-separated)"
+              />
+            </div>
+
+            <div class="form-group">
+              <label class="checkbox-label">
+                <input type="checkbox" id="isPublic" />
+                <span class="checkmark"></span>
+                Make this schedule public (others can view it)
+              </label>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn-secondary" onclick="closeModal()">
+            Cancel
+          </button>
+          <button
+            type="submit"
+            form="scheduleForm"
+            class="btn-primary"
+            id="saveScheduleBtn"
+          >
+            Create Schedule
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Schedule Detail Modal -->
+    <div id="detailModal" class="modal">
+      <div class="modal-content large-modal">
+        <div class="modal-header">
+          <h2 id="detailTitle">Schedule Details</h2>
+          <div class="header-actions">
+            <button id="editScheduleBtn" class="btn-secondary">Edit</button>
+            <button id="deleteScheduleBtn" class="btn-danger">Delete</button>
+            <span class="close">&times;</span>
+          </div>
+        </div>
+        <div class="modal-body">
+          <div id="scheduleDetails">
+            <!-- Schedule details will be populated here -->
           </div>
         </div>
       </div>
     </div>
 
     <script src="script/schedule.script.js"></script>
+
+    <style>
+      .schedule-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+        background: rgba(255, 255, 255, 0.95);
+        border-radius: 10px;
+        min-height: 80vh;
+      }
+
+      .schedule-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 30px;
+        padding-bottom: 20px;
+        border-bottom: 2px solid #eee;
+      }
+
+      .schedule-header h1 {
+        color: #333;
+        margin: 0;
+      }
+
+      .create-btn {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border: none;
+        padding: 12px 24px;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 16px;
+        font-weight: 600;
+        transition: transform 0.2s, box-shadow 0.2s;
+      }
+
+      .create-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+      }
+
+      .create-btn span {
+        font-size: 20px;
+        margin-right: 8px;
+      }
+
+      .schedules-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+        gap: 20px;
+        margin-bottom: 40px;
+      }
+
+      .schedule-card {
+        background: white;
+        border-radius: 12px;
+        padding: 20px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        transition: transform 0.2s, box-shadow 0.2s;
+        cursor: pointer;
+        border: 1px solid #e0e0e0;
+      }
+
+      .schedule-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+      }
+
+      .schedule-card h3 {
+        margin: 0 0 10px 0;
+        color: #333;
+        font-size: 18px;
+      }
+
+      .schedule-card .description {
+        color: #666;
+        font-size: 14px;
+        margin-bottom: 15px;
+        overflow: hidden;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+      }
+
+      .schedule-card .dates {
+        display: flex;
+        justify-content: space-between;
+        font-size: 14px;
+        color: #888;
+        margin-bottom: 10px;
+      }
+
+      .schedule-card .budget {
+        font-weight: 600;
+        color: #27ae60;
+        font-size: 16px;
+      }
+
+      .schedule-card .tags {
+        margin-top: 10px;
+      }
+
+      .tag {
+        display: inline-block;
+        background: #f0f0f0;
+        color: #666;
+        padding: 4px 8px;
+        border-radius: 12px;
+        font-size: 12px;
+        margin-right: 5px;
+        margin-bottom: 5px;
+      }
+
+      .empty-state {
+        text-align: center;
+        padding: 60px 20px;
+        color: #666;
+      }
+
+      .empty-state h3 {
+        margin-bottom: 10px;
+        color: #333;
+      }
+
+      .loading-message {
+        grid-column: 1 / -1;
+        text-align: center;
+        padding: 40px;
+        color: #666;
+        font-size: 18px;
+      }
+
+      /* Modal Styles */
+      .modal {
+        display: none;
+        position: fixed;
+        z-index: 1000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        backdrop-filter: blur(5px);
+      }
+
+      .modal-content {
+        background-color: white;
+        margin: 5% auto;
+        padding: 0;
+        border-radius: 12px;
+        width: 90%;
+        max-width: 600px;
+        max-height: 90vh;
+        overflow-y: auto;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+      }
+
+      .large-modal {
+        max-width: 900px;
+      }
+
+      .modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 20px 30px;
+        border-bottom: 1px solid #eee;
+        background: #f8f9fa;
+        border-radius: 12px 12px 0 0;
+      }
+
+      .modal-header h2 {
+        margin: 0;
+        color: #333;
+      }
+
+      .header-actions {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+      }
+
+      .close {
+        color: #aaa;
+        font-size: 28px;
+        font-weight: bold;
+        cursor: pointer;
+        margin-left: 15px;
+      }
+
+      .close:hover {
+        color: #333;
+      }
+
+      .modal-body {
+        padding: 30px;
+      }
+
+      .modal-footer {
+        padding: 20px 30px;
+        border-top: 1px solid #eee;
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+        background: #f8f9fa;
+        border-radius: 0 0 12px 12px;
+      }
+
+      .form-group {
+        margin-bottom: 20px;
+      }
+
+      .form-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+      }
+
+      .form-group label {
+        display: block;
+        margin-bottom: 5px;
+        font-weight: 600;
+        color: #333;
+      }
+
+      .form-group input,
+      .form-group textarea,
+      .form-group select {
+        width: 100%;
+        padding: 12px;
+        border: 2px solid #e0e0e0;
+        border-radius: 6px;
+        font-size: 16px;
+        transition: border-color 0.3s;
+      }
+
+      .form-group input:focus,
+      .form-group textarea:focus,
+      .form-group select:focus {
+        outline: none;
+        border-color: #667eea;
+      }
+
+      .checkbox-label {
+        display: flex;
+        align-items: center;
+        cursor: pointer;
+        font-weight: normal !important;
+      }
+
+      .checkbox-label input[type="checkbox"] {
+        margin-right: 10px;
+        width: auto;
+      }
+
+      .btn-primary {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border: none;
+        padding: 12px 24px;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 16px;
+        font-weight: 600;
+      }
+
+      .btn-secondary {
+        background: #f8f9fa;
+        color: #333;
+        border: 2px solid #e0e0e0;
+        padding: 12px 24px;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 16px;
+        font-weight: 600;
+      }
+
+      .btn-danger {
+        background: #dc3545;
+        color: white;
+        border: none;
+        padding: 12px 24px;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 16px;
+        font-weight: 600;
+      }
+
+      .btn-primary:hover,
+      .btn-secondary:hover,
+      .btn-danger:hover {
+        opacity: 0.9;
+        transform: translateY(-1px);
+      }
+    </style>
   </body>
 </html>

@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>RoamViet - Tin nhắn</title>
+    <link rel="icon" href="logo/logo-black.png" type="image/png" />
+    <link rel="stylesheet" href="css/messaging_style.css?v=2024-fix" />
+    <link rel="stylesheet" href="css/main_site_style.css" />
+  </head>
+  <body>
+    <div class="background-slider"></div>
+
+    <header>
+      <div class="logo">
+        <img src="logo/logo-white.png" alt="RoamViet Logo" />
+        <span class="logo-text"><a href="main_site.html">RoamViet</a></span>
+      </div>
+      <nav>
+        <ul class="main-nav">
+          <li><a href="checkin.html">Check-in</a></li>
+          <li><a href="schedule.html">Schedule</a></li>
+          <li><a href="all_63.html">63 tỉnh thành</a></li>
+          <li><a href="messaging.html" class="active">Tin nhắn</a></li>
+        </ul>
+      </nav>
+      <div class="contact-icons">
+        <a href="contact.html" class="icon phone">
+          <img src="logo/phone-icon-white.png" alt="Phone" />
+        </a>
+        <a href="contact.html" class="icon email">
+          <img src="logo/email-icon-white.png" alt="Email" />
+        </a>
+        <a href="profile.html" class="icon profile">
+          <img src="logo/profile-icon-white.png" alt="Profile" />
+        </a>
+        <button
+          onclick="logout()"
+          class="icon logout"
+          style="background: none; border: none; cursor: pointer"
+        >
+          <img
+            src="logo/logout-icon-white.png"
+            alt="Logout"
+            style="width: 24px; height: 24px"
+          />
+        </button>
+      </div>
+    </header>
+
+    <main class="messaging-container">
+      <div class="messaging-layout">
+        <!-- Chat Sidebar -->
+        <div class="chat-sidebar">
+          <div class="sidebar-header">
+            <h2>Tin nhắn</h2>
+            <button class="new-chat-btn" onclick="openNewChatModal()">
+              <span>+</span> Cuộc trò chuyện mới
+            </button>
+          </div>
+
+          <div class="search-container">
+            <input
+              type="text"
+              id="searchConversations"
+              placeholder="Tìm kiếm cuộc trò chuyện..."
+            />
+          </div>
+
+          <div class="conversation-list" id="conversationList">
+            <div class="loading-message">Đang tải cuộc trò chuyện...</div>
+          </div>
+        </div>
+
+        <!-- Chat Main Area -->
+        <div class="chat-main">
+          <div class="welcome-screen" id="welcomeScreen">
+            <div class="welcome-content">
+              <h3>Chào mừng đến với Tin nhắn RoamViet!</h3>
+              <p>
+                Kết nối với những người bạn đồng hành trong hành trình khám phá
+                Việt Nam
+              </p>
+
+              <div class="instructions">
+                <h4>📱 Cách sử dụng:</h4>
+                <ul>
+                  <li>🔍 Nhấn "Cuộc trò chuyện mới" để tìm bạn bè</li>
+                  <li>📧 Nhập email chính xác của người bạn muốn nhắn tin</li>
+                  <li>💬 Bắt đầu trò chuyện và chia sẻ trải nghiệm du lịch</li>
+                  <li>
+                    🌟 Mời bạn bè đăng ký với email: buddy@roamviet.com để test
+                  </li>
+                </ul>
+              </div>
+
+              <button class="start-chat-btn" onclick="openNewChatModal()">
+                Bắt đầu cuộc trò chuyện
+              </button>
+            </div>
+          </div>
+
+          <!-- Conversation Header -->
+          <div
+            class="conversation-header"
+            id="conversationHeader"
+            style="display: none"
+          >
+            <div class="conversation-user-info">
+              <div class="user-avatar">
+                <img
+                  id="conversationUserAvatar"
+                  src="logo/profile-icon-white.png"
+                  alt="User"
+                />
+              </div>
+              <div class="user-details">
+                <h3 id="conversationUserName">Tên người dùng</h3>
+                <span class="user-status" id="conversationUserStatus"
+                  >Đang hoạt động</span
+                >
+              </div>
+            </div>
+            <div class="conversation-actions">
+              <button class="action-btn" onclick="clearConversation()">
+                Xóa cuộc trò chuyện
+              </button>
+            </div>
+          </div>
+
+          <!-- Messages Area -->
+          <!-- 
+            Message positioning: 
+            - Your messages appear on the RIGHT with blue background
+            - Other user's messages appear on the LEFT with white background
+            - Each message has an avatar indicator
+            - To test positioning, open browser console and type: testMessagePositioning()
+          -->
+          <div
+            class="messages-container"
+            id="messagesContainer"
+            style="display: none"
+          >
+            <div class="messages-list" id="messagesList">
+              <!-- Messages will be loaded here -->
+            </div>
+          </div>
+
+          <!-- Message Input -->
+          <div
+            class="message-input-container"
+            id="messageInputContainer"
+            style="display: none"
+          >
+            <div class="message-input">
+              <input
+                type="text"
+                id="messageInput"
+                placeholder="Nhập tin nhắn..."
+                onkeypress="handleMessageKeyPress(event)"
+              />
+              <button class="attachment-btn" onclick="handleAttachment()">
+                📎
+              </button>
+              <button class="send-btn" onclick="sendMessage()">Gửi</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- New Chat Modal -->
+    <div class="modal" id="newChatModal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3>Cuộc trò chuyện mới</h3>
+          <button class="close-btn" onclick="closeNewChatModal()">
+            &times;
+          </button>
+        </div>
+        <div class="modal-body">
+          <div class="search-users-container">
+            <input
+              type="text"
+              id="searchUsers"
+              placeholder="Nhập email hoặc tên người dùng..."
+              oninput="searchUsers()"
+            />
+            <div class="search-instructions">
+              💡 Gợi ý: Nhập email chính xác để tìm người dùng (VD:
+              buddy@roamviet.com)
+            </div>
+          </div>
+          <div class="users-list" id="usersList">
+            <div class="loading-message">
+              Nhập email hoặc tên để tìm kiếm người dùng...
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loadingOverlay" style="display: none">
+      <div class="spinner"></div>
+      <p>Đang tải...</p>
+    </div>
+
+    <script src="script/accounts.js"></script>
+    <script src="script/messaging_script.js?v=2024-profile"></script>
+  </body>
+</html>

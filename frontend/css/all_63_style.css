@@ -228,3 +228,684 @@ body {
     font-size: 14px;
   }
 }
+
+/* Memory Registration Panel Styles */
+.memory-registration-panel {
+  position: absolute;
+  right: 20px;
+  top: 20px;
+  width: 450px;
+  background-color: rgba(255, 255, 255, 0.98);
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  z-index: 150;
+  max-width: calc(100% - 40px);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  animation: slideInRight 0.3s ease-in-out;
+}
+
+.memory-panel-header {
+  background: linear-gradient(135deg, #0c7489 0%, #095b6a 100%);
+  color: white;
+  padding: 20px;
+  border-radius: 12px 12px 0 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.memory-panel-header h3 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.close-memory-panel {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 24px;
+  font-weight: bold;
+  cursor: pointer;
+  padding: 0;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: background-color 0.2s ease;
+}
+
+.close-memory-panel:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+.memory-panel-content {
+  padding: 25px;
+}
+
+.memory-form .form-group {
+  margin-bottom: 20px;
+}
+
+.memory-form label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 600;
+  color: #333;
+  font-size: 14px;
+}
+
+.memory-form input[type="text"],
+.memory-form textarea {
+  width: 100%;
+  padding: 12px;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  font-size: 14px;
+  transition: border-color 0.3s ease;
+  box-sizing: border-box;
+  font-family: inherit;
+}
+
+.memory-form input[type="text"]:focus,
+.memory-form textarea:focus {
+  outline: none;
+  border-color: #0c7489;
+  box-shadow: 0 0 0 3px rgba(12, 116, 137, 0.1);
+}
+
+.memory-form textarea {
+  resize: vertical;
+  min-height: 100px;
+}
+
+/* Photo Upload Area */
+.photo-upload-area {
+  position: relative;
+}
+
+.upload-placeholder {
+  border: 2px dashed #d0d0d0;
+  border-radius: 8px;
+  padding: 30px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  background-color: #fafafa;
+}
+
+.upload-placeholder:hover {
+  border-color: #0c7489;
+  background-color: #f0f8ff;
+}
+
+.upload-icon {
+  font-size: 36px;
+  margin-bottom: 10px;
+}
+
+.upload-placeholder p {
+  margin: 10px 0 5px 0;
+  font-weight: 600;
+  color: #333;
+}
+
+.upload-hint {
+  font-size: 12px;
+  color: #666;
+}
+
+.photo-preview {
+  position: relative;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 2px solid #e0e0e0;
+}
+
+.photo-preview img {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+  display: block;
+}
+
+.remove-photo {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: rgba(255, 0, 0, 0.8);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 30px;
+  height: 30px;
+  cursor: pointer;
+  font-size: 18px;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s ease;
+}
+
+.remove-photo:hover {
+  background: rgba(255, 0, 0, 1);
+}
+
+/* Form Actions */
+.form-actions {
+  display: flex;
+  gap: 15px;
+  justify-content: flex-end;
+  margin-top: 25px;
+  padding-top: 20px;
+  border-top: 1px solid #e0e0e0;
+}
+
+.btn-cancel,
+.btn-save {
+  padding: 12px 24px;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-width: 100px;
+}
+
+.btn-cancel {
+  background-color: #f5f5f5;
+  color: #666;
+  border: 2px solid #e0e0e0;
+}
+
+.btn-cancel:hover {
+  background-color: #e0e0e0;
+  color: #333;
+}
+
+.btn-save {
+  background: linear-gradient(135deg, #0c7489 0%, #095b6a 100%);
+  color: white;
+}
+
+.btn-save:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(12, 116, 137, 0.3);
+}
+
+.btn-save:disabled {
+  opacity: 0.6;
+  transform: none;
+  box-shadow: none;
+  cursor: not-allowed;
+}
+
+/* Add memory button styling to match read-more button */
+.add-memory-btn {
+  padding: 8px 16px;
+  background-color: #28a745;
+  color: #ffffff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-top: 15px;
+  margin-left: 10px;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+  font-weight: bold;
+}
+
+.add-memory-btn:hover {
+  background-color: #218838;
+  transform: translateY(-2px);
+}
+
+.add-memory-btn:active {
+  transform: translateY(0);
+}
+
+/* Notification styles */
+.notification {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  padding: 15px 20px;
+  border-radius: 8px;
+  color: white;
+  font-weight: 600;
+  z-index: 200;
+  animation: slideInRight 0.3s ease-in-out;
+  max-width: 350px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.notification-success {
+  background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+}
+
+.notification-error {
+  background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+}
+
+.notification-info {
+  background: linear-gradient(135deg, #17a2b8 0%, #138496 100%);
+}
+
+/* Animations */
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(100%);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+/* Responsive Design for Memory Panel */
+@media screen and (max-width: 768px) {
+  .memory-registration-panel {
+    position: fixed !important;
+    top: 0 !important;
+    right: 0 !important;
+    left: 0 !important;
+    bottom: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    border-radius: 0 !important;
+    z-index: 200 !important;
+  }
+
+  .memory-panel-header {
+    border-radius: 0 !important;
+  }
+
+  .memory-panel-content {
+    padding: 20px;
+    height: calc(100vh - 80px);
+    overflow-y: auto;
+  }
+
+  .form-actions {
+    position: sticky;
+    bottom: 0;
+    background: white;
+    margin: 0 -20px -20px -20px;
+    padding: 20px;
+    border-top: 2px solid #e0e0e0;
+  }
+}
+
+/* User Memories Section in Province Info Panel */
+.user-memories-section {
+  margin: 20px 0;
+  padding-top: 15px;
+  border-top: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.user-memories-section h3 {
+  margin: 0 0 15px 0;
+  font-size: 16px;
+  color: #0c7489;
+  font-weight: 600;
+}
+
+.memories-list {
+  max-height: 200px;
+  overflow-y: auto;
+  padding-right: 5px;
+}
+
+.memory-item {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  padding: 12px;
+  margin-bottom: 10px;
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  transition: background-color 0.2s ease;
+}
+
+.memory-item:hover {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.memory-item:last-child {
+  margin-bottom: 0;
+}
+
+.memory-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.memory-content h4 {
+  margin: 0 0 5px 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: #ffffff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.memory-content p {
+  margin: 0 0 5px 0;
+  font-size: 12px;
+  line-height: 1.4;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.memory-content small {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.memory-photo {
+  flex-shrink: 0;
+  width: 50px;
+  height: 50px;
+  border-radius: 6px;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.memory-photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Custom scrollbar for memories list */
+.memories-list::-webkit-scrollbar {
+  width: 6px;
+}
+
+.memories-list::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 3px;
+}
+
+.memories-list::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 3px;
+}
+
+.memories-list::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.5);
+}
+
+/* Province Actions Styling - For View/Add Memory buttons */
+.province-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 15px;
+  margin-bottom: 10px; /* Added some bottom margin */
+}
+
+.province-actions button {
+  padding: 8px 16px; /* Consistent padding */
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+  font-weight: bold;
+  font-size: 0.9rem; /* Slightly smaller font for consistency */
+}
+
+.read-more-btn {
+  background-color: #0c7489; /* Original blue */
+  color: #ffffff;
+}
+.read-more-btn:hover {
+  background-color: #095b6a;
+  transform: translateY(-2px);
+}
+
+.add-memory-btn {
+  background-color: #5cb85c; /* A slightly different green */
+  color: #ffffff;
+}
+.add-memory-btn:hover {
+  background-color: #4cae4c;
+  transform: translateY(-2px);
+}
+
+.view-memory-btn {
+  background-color: #f0ad4e; /* Orange for view */
+  color: #ffffff;
+}
+.view-memory-btn:hover {
+  background-color: #ec971f;
+  transform: translateY(-2px);
+}
+
+/* Memory Viewing Modal Styles */
+.memory-viewing-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.65); /* Slightly darker backdrop */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 2000;
+  animation: fadeInModal 0.3s ease-out;
+}
+
+.memory-viewing-modal .modal-content {
+  background: #f9f9f9; /* Lighter background for modal content */
+  border-radius: 10px;
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.25);
+  max-width: 800px;
+  width: 90%;
+  max-height: 85vh; /* Increased max height slightly */
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.memory-viewing-modal .modal-header {
+  background: linear-gradient(
+    135deg,
+    #6c757d 0%,
+    #5a6268 100%
+  ); /* Neutral gradient */
+  color: white;
+  padding: 18px 22px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #dee2e6;
+}
+
+.memory-viewing-modal .modal-header h3 {
+  margin: 0;
+  font-size: 1.3rem;
+  font-weight: 500;
+}
+
+.memory-viewing-modal .close-modal-btn {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 26px;
+  cursor: pointer;
+  padding: 0;
+  line-height: 1;
+  opacity: 0.8;
+  transition: opacity 0.2s ease;
+}
+
+.memory-viewing-modal .close-modal-btn:hover {
+  opacity: 1;
+}
+
+.memory-viewing-modal .modal-body {
+  padding: 20px;
+  overflow-y: auto;
+  flex-grow: 1;
+  background-color: #ffffff; /* White background for body content area */
+}
+
+.memory-viewing-modal .memories-grid {
+  display: grid;
+  grid-template-columns: repeat(
+    auto-fill,
+    minmax(280px, 1fr)
+  ); /* Slightly smaller min card width */
+  gap: 18px;
+}
+
+.memory-viewing-modal .memory-card {
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  overflow: hidden;
+  background: #ffffff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  transition: box-shadow 0.25s ease;
+}
+
+.memory-viewing-modal .memory-card:hover {
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.12);
+}
+
+.memory-viewing-modal .memory-image {
+  width: 100%;
+  height: 180px; /* Adjusted height */
+  overflow: hidden;
+  background-color: #f0f0f0; /* Placeholder background */
+}
+
+.memory-viewing-modal .memory-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.memory-viewing-modal .memory-image-placeholder {
+  width: 100%;
+  height: 180px;
+  background: #f8f9fa;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: #6c757d;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.memory-viewing-modal .memory-image-placeholder .placeholder-icon {
+  font-size: 40px;
+  margin-bottom: 8px;
+}
+
+.memory-viewing-modal .memory-details {
+  padding: 12px 15px;
+}
+
+.memory-viewing-modal .memory-details h4 {
+  margin: 0 0 8px 0;
+  color: #343a40;
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.memory-viewing-modal .memory-description {
+  color: #495057;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  margin-bottom: 10px;
+  display: -webkit-box;
+  -webkit-line-clamp: 3; /* Show up to 3 lines */
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-height: calc(1.5em * 3); /* Ensure space for 3 lines */
+}
+
+.memory-viewing-modal .memory-details small {
+  font-size: 0.8rem;
+  color: #6c757d;
+}
+
+.memory-viewing-modal .modal-footer {
+  padding: 15px 22px;
+  background: #f1f3f5; /* Lighter footer */
+  display: flex;
+  justify-content: flex-end;
+  border-top: 1px solid #dee2e6;
+}
+
+.memory-viewing-modal .btn-close-modal {
+  padding: 9px 20px;
+  background-color: #6c757d;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background-color 0.2s ease;
+}
+
+.memory-viewing-modal .btn-close-modal:hover {
+  background-color: #5a6268;
+}
+
+@keyframes fadeInModal {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes fadeOutModal {
+  from {
+    opacity: 1;
+    transform: scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+}
+
+/* Responsive for Modal */
+@media (max-width: 768px) {
+  .memory-viewing-modal .modal-content {
+    max-width: 95%;
+    max-height: 90vh;
+  }
+  .memory-viewing-modal .memories-grid {
+    grid-template-columns: 1fr; /* Single column on smaller screens */
+  }
+  .province-actions button {
+    width: 100%; /* Make buttons full width on small screens */
+    margin-bottom: 8px;
+  }
+  .province-actions button:last-child {
+    margin-bottom: 0;
+  }
+}

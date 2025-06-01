@@ -17,10 +17,9 @@
       <nav>
         <ul class="main-nav">
           <li><a href="checkin.html">Check-in</a></li>
-          <li>
-            <a id="scheduleIcon" class="icon profile">Schedule</a>
-          </li>
+          <li><a href="schedule.html">Schedule</a></li>
           <li><a href="all_63.html" class="current">63 tỉnh thành</a></li>
+          <li><a href="messaging.html">Tin nhắn</a></li>
         </ul>
       </nav>
       <div class="contact-icons">
@@ -30,9 +29,20 @@
         <a href="contact.html" class="icon email">
           <img src="logo/email-icon-white.png" alt="Email" />
         </a>
-        <a id="profileIcon" class="icon profile" href="#">
+        <a id="profileIcon" class="icon profile" href="profile.html">
           <img src="logo/profile-icon-white.png" alt="Profile" />
         </a>
+        <button
+          onclick="logout()"
+          class="icon logout"
+          style="background: none; border: none; cursor: pointer"
+        >
+          <img
+            src="logo/logout-icon-white.png"
+            alt="Logout"
+            style="width: 24px; height: 24px"
+          />
+        </button>
       </div>
     </header>
 
@@ -47,6 +57,8 @@
         <div class="map-container"></div>
       </div>
     </div>
+
+    <script src="script/accounts.js"></script>
     <script src="script/all_63_script.js"></script>
   </body>
 </html>
