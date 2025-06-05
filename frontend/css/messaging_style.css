@@ -2,7 +2,6 @@
 .messaging-container {
   min-height: calc(100vh - 80px);
   padding: 20px;
-  margin-top: 80px;
 }
 
 .messaging-layout {
@@ -26,7 +25,7 @@
 }
 
 .sidebar-header {
-  padding: 20px;
+  padding: 15px;
   border-bottom: 1px solid #e0e0e0;
   background: white;
 }
@@ -686,3 +685,374 @@
     max-width: 85%;
   }
 }
+
+/* Friend Search Section in Sidebar */
+.friend-search-section {
+  border-bottom: 1px solid #e0e0e0;
+  background: #fff; /* Match sidebar header */
+}
+
+.friend-search-section h4 {
+  margin: 0 0 10px 0;
+  font-size: 16px;
+  color: #333;
+  font-weight: 600;
+}
+
+#searchFriendInput {
+  width: 100%;
+  padding: 10px 15px;
+  border: 1px solid #ddd;
+  border-radius: 20px; /* Consistent with conversation search */
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.3s ease;
+  margin-bottom: 10px;
+}
+
+#searchFriendInput:focus {
+  border-color: #667eea; /* Consistent with conversation search */
+}
+
+.friend-search-results-container {
+  max-height: 200px; /* Adjust as needed */
+  overflow-y: auto;
+  border-top: 1px solid #eee;
+  margin-top: 10px;
+}
+
+/* Styling for individual friend search result items */
+/* The JS adds 'user-item' class, so it will inherit some base styles. */
+/* We can add specific overrides or additions for .friend-search-result-item if needed */
+.friend-search-result-item {
+  display: flex; /* This is key for layout */
+  align-items: center;
+  padding: 10px; /* Override if .user-item has different padding */
+  /* border-bottom: 1px solid #f0f0f0; /* .user-item might already have this */
+  /* transition: background-color 0.2s ease-in-out; */
+}
+
+.friend-search-result-item:last-child {
+  border-bottom: none;
+}
+
+/* .friend-search-result-item:hover {
+  background-color: #f5f5f5; 
+} */
+
+/* Ensure .user-avatar-container, .user-info, .user-name, .user-email from existing .user-item styles apply well */
+/* Example explicit styling if needed, assuming .user-item provides avatar and info structure */
+.friend-search-result-item .user-avatar-container {
+  margin-right: 12px;
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  background-color: #e9ecef; /* A light fallback for initials */
+}
+.friend-search-result-item .user-avatar-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.friend-search-result-item .user-avatar-initial {
+  font-size: 18px;
+  color: #495057; /* Darker text for light bg */
+  font-weight: bold;
+}
+
+.friend-search-result-item .user-info {
+  flex-grow: 1;
+  min-width: 0; /* For text overflow */
+}
+.friend-search-result-item .user-name {
+  font-weight: 500;
+  color: #333;
+  font-size: 15px;
+  margin-bottom: 2px;
+}
+.friend-search-result-item .user-email {
+  font-size: 13px;
+  color: #777;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.add-friend-btn {
+  padding: 6px 12px;
+  font-size: 13px;
+  background-color: #667eea; /* Theme color */
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease, opacity 0.3s ease;
+  margin-left: 10px; /* Space from user info */
+  flex-shrink: 0;
+}
+
+.add-friend-btn:hover {
+  background-color: #5a6fcf; /* Darker shade */
+}
+
+.add-friend-btn:disabled {
+  background-color: #cccccc;
+  color: #666666;
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+/* System messages within friend search results */
+.friend-search-results-container .system-message,
+.friend-search-results-container .loading-message {
+  padding: 15px;
+  text-align: center;
+  color: #777;
+  font-size: 14px;
+}
+.friend-search-results-container .system-message.error-message {
+  color: #d9534f;
+}
+
+/* Friend Detail Modal Styles */
+.friend-detail-modal-content {
+  padding: 0; /* Remove padding if modal-header/body have their own */
+}
+
+.friend-detail-modal-body {
+  text-align: center;
+  padding: 25px 30px 30px; /* Adjust padding as needed */
+}
+
+.friend-detail-avatar-container {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  margin: 0 auto 20px;
+  background-color: #e9ecef;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  border: 3px solid white;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.friend-detail-avatar-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.friend-detail-avatar-initial {
+  font-size: 40px;
+  color: #495057;
+  font-weight: bold;
+  display: flex; /* Ensure it's displayed as a block/flex to center text if img fails */
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+}
+
+#friendDetailUsername {
+  font-size: 22px;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 8px;
+}
+
+.friend-detail-email-text {
+  font-size: 15px;
+  color: #666;
+  margin-bottom: 25px;
+}
+
+.add-friend-detail-btn {
+  width: 100%;
+  padding: 12px;
+  font-size: 16px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.add-friend-detail-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+}
+
+.add-friend-detail-btn:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.friend-detail-status {
+  margin-top: 15px;
+  font-size: 14px;
+  padding: 8px 12px;
+  border-radius: 6px;
+  display: none; /* Hidden by default */
+}
+
+.friend-detail-status-processing {
+  background-color: #eef2f7;
+  color: #5a67d8;
+  border: 1px solid #c3dafe;
+}
+
+.friend-detail-status-success {
+  background-color: #e6fffa;
+  color: #38a169;
+  border: 1px solid #9ae6b4;
+}
+
+.friend-detail-status-error {
+  background-color: #fff5f5;
+  color: #e53e3e;
+  border: 1px solid #feb2b2;
+}
+
+/* Ensure user-item in search results is clickable */
+.friend-search-results-container .user-item {
+  cursor: pointer;
+}
+
+.friend-search-results-container .user-item:hover {
+  background-color: #f0f0f0; /* Or your preferred hover color */
+}
+
+/* Friend Request Section Styling */
+.friend-request-section {
+  background-color: #f8f9fa;
+  border: 1px solid #e9ecef;
+  border-radius: 8px;
+  padding: 15px;
+  margin-bottom: 15px;
+}
+
+.friend-request-section h2 {
+  color: #495057;
+  font-size: 16px;
+  margin-bottom: 12px;
+  font-weight: 600;
+}
+
+.friend-request-list {
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.friend-request-section .friend-request-item {
+  display: flex;
+  align-items: center;
+  padding: 10px 0;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.friend-request-section .friend-request-item:last-child {
+  border-bottom: none;
+}
+
+.friend-request-section .request-item-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  overflow: hidden;
+  margin-right: 10px;
+  background-color: #e9ecef;
+  flex-shrink: 0;
+}
+
+.friend-request-section .request-item-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.friend-request-section .request-item-avatar .initials {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  color: #6c757d;
+  font-size: 16px;
+}
+
+.friend-request-section .request-item-info {
+  flex-grow: 1;
+  min-width: 0;
+}
+
+.friend-request-section .request-item-name {
+  font-weight: 500;
+  color: #333;
+  font-size: 14px;
+  margin-bottom: 2px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.friend-request-section .request-item-email {
+  font-size: 12px;
+  color: #6c757d;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.friend-request-section .request-item-actions {
+  display: flex;
+  gap: 5px;
+  flex-shrink: 0;
+}
+
+.friend-request-section .btn-accept,
+.friend-request-section .btn-decline {
+  padding: 4px 8px;
+  font-size: 11px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background-color 0.2s ease;
+}
+
+.friend-request-section .btn-accept {
+  background-color: #28a745;
+  color: white;
+}
+
+.friend-request-section .btn-accept:hover {
+  background-color: #218838;
+}
+
+.friend-request-section .btn-decline {
+  background-color: #dc3545;
+  color: white;
+}
+
+.friend-request-section .btn-decline:hover {
+  background-color: #c82333;
+}
+
+.friend-request-section .btn-accept:disabled,
+.friend-request-section .btn-decline:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Friend Search Section Styling */

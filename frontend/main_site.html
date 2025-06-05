@@ -27,9 +27,12 @@
         <a href="contact.html" class="icon phone">
           <img src="logo/phone-icon-white.png" alt="Phone" />
         </a>
-        <a href="contact.html" class="icon email">
-          <img src="logo/email-icon-white.png" alt="Email" />
-        </a>
+        <div
+          class="notification-icon-container icon"
+          id="notificationIconContainer"
+        >
+          <img src="logo/notification-icon-white.png" alt="Notification" />
+        </div>
 
         <a href="profile.html" class="icon profile">
           <img src="logo/profile-icon-white.png" alt="Profile" />
@@ -61,5 +64,17 @@
 
     <script src="script/accounts.js"></script>
     <script src="script/main_site_script.js"></script>
+
+    <div class="friend-request-panel" id="notification-panel">
+      <div class="panel-header">
+        <h3>Notifications</h3>
+        <button class="close-panel-btn" id="close-notification-panel-btn">
+          &times;
+        </button>
+      </div>
+      <div class="panel-body" id="notification-list">
+        <p class="loading-message">No new notifications.</p>
+      </div>
+    </div>
   </body>
 </html>

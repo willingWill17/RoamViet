@@ -60,4 +60,76 @@ document.addEventListener("DOMContentLoaded", function () {
       // Navigation happens automatically through the href attribute
     });
   }
+
+  // Notification Panel Logic
+  const notificationIconContainer = document.getElementById(
+    "notificationIconContainer"
+  );
+  const notificationPanel = document.getElementById("notification-panel");
+  const closeNotificationPanelBtn = document.getElementById(
+    "close-notification-panel-btn"
+  );
+  const notificationList = document.getElementById("notification-list");
+
+  // Sample notifications - replace with actual data fetching later
+  const sampleNotifications = [
+    { id: 1, message: "You have a new message from UserX.", type: "message" },
+    {
+      id: 2,
+      message: "Event 'Team Meeting' is starting in 15 minutes.",
+      type: "event",
+    },
+    {
+      id: 3,
+      message: "Your profile was updated successfully.",
+      type: "system",
+    },
+  ];
+
+  function renderNotifications() {
+    const notification_url = "http://localhost:8080/api/friend_requests";
+    // fet
+    notificationList.innerHTML = ""; // Clear existing notifications
+    if (sampleNotifications.length === 0) {
+      notificationList.innerHTML =
+        '<p class="loading-message">No new notifications.</p>';
+      return;
+    }
+    sampleNotifications.forEach((notification) => {
+      const notificationItem = document.createElement("div");
+      notificationItem.classList.add("friend-request-item"); // Using existing class for item styling
+      notificationItem.innerHTML = `
+            <div class="request-item-info">
+                <p class="request-item-name">${notification.message}</p>
+            </div>`; // Removed trailing newline and space from template literal
+      notificationList.appendChild(notificationItem);
+    });
+  }
+
+  if (notificationIconContainer && notificationPanel) {
+    notificationIconContainer.addEventListener("click", (event) => {
+      event.stopPropagation();
+      notificationPanel.classList.toggle("open");
+      if (notificationPanel.classList.contains("open")) {
+        renderNotifications();
+      }
+    });
+  }
+
+  if (closeNotificationPanelBtn && notificationPanel) {
+    closeNotificationPanelBtn.addEventListener("click", () => {
+      notificationPanel.classList.remove("open");
+    });
+  }
+
+  document.addEventListener("click", function (event) {
+    if (notificationPanel && notificationPanel.classList.contains("open")) {
+      if (
+        !notificationPanel.contains(event.target) &&
+        !notificationIconContainer.contains(event.target)
+      ) {
+        notificationPanel.classList.remove("open");
+      }
+    }
+  });
 });

@@ -1,82 +1,180 @@
 /* General reset */
 * {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
 
 /* Body styling */
 body {
-    font-family: Arial, sans-serif;
-    background-color: #f4f4f9;
-    color: #333;
-    padding: 20px;
+  font-family: Arial, sans-serif;
+  background-color: #f4f4f9;
+  color: #333;
+  padding: 20px;
 }
 
 /* Main container */
 .container {
-    max-width: 800px;
-    margin: 0 auto;
-    padding: 20px;
-    background-color: #fff;
-    border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 /* Header */
 header h1 {
-    text-align: center;
-    color: #2c3e50;
-    font-size: 2.5em;
-    margin-bottom: 20px;
+  text-align: center;
+  color: #2c3e50;
+  font-size: 2.5em;
+  margin-bottom: 20px;
 }
 
 /* Contact Info Section */
 .contact-info {
-    margin-top: 30px;
+  margin-top: 30px;
 }
 
 .contact-info h2 {
-    font-size: 2em;
-    color: #2980b9;
-    margin-bottom: 10px;
+  font-size: 2em;
+  color: #2980b9;
+  margin-bottom: 10px;
 }
 
 .contact-info p {
-    font-size: 1.2em;
-    margin-bottom: 20px;
+  font-size: 1.2em;
+  margin-bottom: 20px;
 }
 
 .contact-info ul {
-    list-style-type: none;
+  list-style-type: none;
 }
 
 .contact-info ul li {
-    font-size: 1.2em;
-    margin-bottom: 15px;
+  font-size: 1.2em;
+  margin-bottom: 15px;
 }
 
 .contact-info a {
-    color: #2980b9;
-    text-decoration: none;
+  color: #2980b9;
+  text-decoration: none;
 }
 
 .contact-info a:hover {
-    text-decoration: underline;
+  text-decoration: underline;
 }
 
 .go-back-button {
-    display: inline-block;
-    padding: 10px 20px;
-    background-color: #0046ff;
-    color: white;
-    text-decoration: none;
-    border-radius: 8px;
-    font-weight: bold;
-    transition: background 0.3s;
-    margin-top: 30px;
+  display: inline-block;
+  padding: 10px 20px;
+  background-color: #0046ff;
+  color: white;
+  text-decoration: none;
+  border-radius: 8px;
+  font-weight: bold;
+  transition: background 0.3s;
+  margin-top: 30px;
 }
 
 .go-back-button:hover {
-    background-color: #0033cc;
+  background-color: #0033cc;
+}
+
+/* Friend Request Panel */
+#friend-request-panel {
+  position: fixed;
+  right: -350px; /* Initially off-screen */
+  top: 0;
+  width: 300px;
+  height: 100%;
+  background-color: #fff;
+  border-left: 1px solid #ddd;
+  box-shadow: -3px 0 10px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  z-index: 1000;
+  transition: right 0.3s ease-in-out;
+  display: flex;
+  flex-direction: column;
+}
+
+#friend-request-panel.visible {
+  right: 0; /* Slide in */
+}
+
+#friend-request-panel h2 {
+  font-size: 1.5em;
+  color: #2c3e50;
+  margin-bottom: 15px;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 10px;
+}
+
+#friend-request-list {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+  flex-grow: 1;
+  overflow-y: auto;
+}
+
+#friend-request-list li {
+  padding: 10px 0;
+  border-bottom: 1px solid #f0f0f0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+#friend-request-list li:last-child {
+  border-bottom: none;
+}
+
+#friend-request-list li span {
+  font-size: 0.95em;
+  color: #333;
+}
+
+#friend-request-list li div button {
+  padding: 6px 10px;
+  margin-left: 8px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.85em;
+  transition: background-color 0.2s ease;
+}
+
+#friend-request-list .accept-btn {
+  background-color: #28a745;
+  color: white;
+}
+
+#friend-request-list .accept-btn:hover {
+  background-color: #218838;
+}
+
+#friend-request-list .decline-btn {
+  background-color: #dc3545;
+  color: white;
+}
+
+#friend-request-list .decline-btn:hover {
+  background-color: #c82333;
+}
+
+#close-panel-btn {
+  background-color: #6c757d;
+  color: white;
+  border: none;
+  padding: 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-top: 20px;
+  text-align: center;
+  font-size: 0.9em;
+}
+
+#close-panel-btn:hover {
+  background-color: #5a6268;
 }

@@ -4,18 +4,15 @@ let currentUser = null;
 let conversations = [];
 let currentMessages = [];
 let messagePollingInterval = null;
+let friend_requests = [];
+let user_friendList = [];
 
-// Base API URL - adjust this to match your backend
 const API_BASE_URL = "http://localhost:3053/api";
 
 // Simple authentication check
 function checkAuth() {
   const token = localStorage.getItem("idToken");
   const expiration = localStorage.getItem("tokenExpiration");
-
-  console.log("🔐 Basic auth check:");
-  console.log("🔐 Token exists:", !!token);
-  console.log("🔐 Expiration:", expiration);
 
   if (!token) {
     console.log("❌ No token found");
@@ -36,6 +33,16 @@ document.addEventListener("DOMContentLoaded", function () {
   initializeMessaging();
 });
 
+async function get_friend_requests() {
+  const token =
+    localStorage.getItem("idToken") || sessionStorage.getItem("idToken");
+  const response = await fetch(`${API_BASE_URL}/friend_requests`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  friend_requests = await response.json();
+  return friend_requests;
+}
+
 async function initializeMessaging() {
   try {
     showLoading(true);
@@ -51,13 +58,6 @@ async function initializeMessaging() {
     const token =
       localStorage.getItem("idToken") || sessionStorage.getItem("idToken");
 
-    console.log("🔐 Messaging: Checking authentication...");
-    console.log("🔐 Token found:", !!token);
-    console.log(
-      "🔐 Token preview:",
-      token ? token.substring(0, 20) + "..." : "none"
-    );
-
     if (!token) {
       console.log("❌ No authentication token found, redirecting to login");
       window.location.href = "login.html";
@@ -65,7 +65,6 @@ async function initializeMessaging() {
     }
 
     // Verify token and get user info
-    console.log("🔐 Verifying token and getting user info...");
     currentUser = await getCurrentUser();
 
     if (!currentUser) {
@@ -74,9 +73,13 @@ async function initializeMessaging() {
       return;
     }
 
-    console.log("✅ Authentication successful, user:", currentUser);
-
+    await get_friend_requests();
+    user_friendList = await get_user_friendList();
     // Load conversations
+    if (friend_requests.data.length > 0) {
+      console.log(friend_requests.data);
+      await makeFriendRequestBlock();
+    }
     await loadConversations();
 
     // Set up search functionality
@@ -90,12 +93,44 @@ async function initializeMessaging() {
   }
 }
 
+async function get_user_friendList() {
+  const token =
+    localStorage.getItem("idToken") || sessionStorage.getItem("idToken");
+  const response = await fetch(`${API_BASE_URL}/get_friends`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  user_friendList = await response.json();
+  if (user_friendList.success) {
+    return user_friendList.data;
+  } else {
+    console.log("❌ Failed to get user friend list");
+    return [];
+  }
+}
+
+async function makeFriendRequestBlock() {
+  // display the friend requests in the sidebar block
+  const friendRequestBlock = document.getElementById("friendRequestBlock");
+  const friendRequestList = document.getElementById("friendRequestList");
+
+  // Clear previous content
+  friendRequestList.innerHTML = "";
+
+  // Add each friend request to the list
+  friend_requests.data.forEach((request) => {
+    console.log("Processing friend request:", request);
+    const requestElement = createFriendRequestElement(request);
+    friendRequestList.appendChild(requestElement);
+  });
+
+  // Show the friend request block
+  friendRequestBlock.style.display = "block";
+}
+
 async function getCurrentUser() {
   try {
     const token =
       localStorage.getItem("idToken") || sessionStorage.getItem("idToken");
-
-    console.log("🔐 Making profile request to:", `${API_BASE_URL}/profile`);
 
     const response = await fetch(`${API_BASE_URL}/profile`, {
       headers: {
@@ -104,11 +139,8 @@ async function getCurrentUser() {
       },
     });
 
-    console.log("🔐 Profile response status:", response.status);
-
     if (response.ok) {
       const data = await response.json();
-      console.log("🔐 Profile response data:", data);
       return data.user;
     } else {
       const errorData = await response.text();
@@ -148,16 +180,6 @@ async function loadConversations() {
 
 function renderConversations() {
   const conversationList = document.getElementById("conversationList");
-
-  if (conversations.length === 0) {
-    conversationList.innerHTML = `
-            <div class="loading-message">
-                <p>Chưa có cuộc trò chuyện nào</p>
-                <button class="start-chat-btn" onclick="openNewChatModal()">Bắt đầu trò chuyện</button>
-            </div>
-        `;
-    return;
-  }
 
   conversationList.innerHTML = "";
 
@@ -298,8 +320,6 @@ function showConversationInterface() {
   const otherParticipant = getOtherParticipant(currentConversation);
   document.getElementById("conversationUserName").textContent =
     otherParticipant.name;
-  document.getElementById("conversationUserStatus").textContent =
-    otherParticipant.status === "online" ? "Đang hoạt động" : "Không hoạt động";
 
   // Update header avatar
   const headerAvatar = document.getElementById("conversationUserAvatar");
@@ -527,75 +547,44 @@ function closeNewChatModal() {
     '<div class="loading-message">Nhập tên để tìm kiếm người dùng...</div>';
 }
 
-let searchTimeout;
-async function searchUsers() {
-  const query = document.getElementById("searchUsers").value.trim();
+// Functions for Share Memory Modal
+let selectedUserForSharing = null;
 
-  if (!query || query.length < 1) {
-    document.getElementById("usersList").innerHTML =
-      '<div class="loading-message">Nhập email hoặc tên để tìm kiếm người dùng...</div>';
-    return;
-  }
-
-  // Show searching state
-  document.getElementById("usersList").innerHTML =
-    '<div class="loading-message">🔍 Đang tìm kiếm...</div>';
-
-  // Debounce search
-  clearTimeout(searchTimeout);
-  searchTimeout = setTimeout(async () => {
-    try {
-      const token =
-        localStorage.getItem("idToken") || sessionStorage.getItem("idToken");
-
-      console.log(`🔍 Searching for users with query: "${query}"`);
-
-      const response = await fetch(
-        `${API_BASE_URL}/users/search?q=${encodeURIComponent(query)}`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        }
-      );
-
-      if (response.ok) {
-        const data = await response.json();
-        console.log(`🔍 Search results:`, data.data);
-        renderSearchResults(data.data || []);
-      } else {
-        throw new Error("Search failed");
-      }
-    } catch (error) {
-      console.error("Error searching users:", error);
-      document.getElementById("usersList").innerHTML =
-        '<div class="loading-message">❌ Lỗi tìm kiếm. Vui lòng thử lại.</div>';
-    }
-  }, 500); // Increased debounce time to reduce API calls
+function openShareMemoryModal() {
+  document.getElementById("shareMemoryModal").style.display = "block";
+  document.getElementById("shareWithUserEmail").focus();
+  selectedUserForSharing = null; // Reset selected user
+  document.getElementById("memoryFile").value = null; // Reset file input
 }
 
-function renderSearchResults(users) {
-  const usersList = document.getElementById("usersList");
+function closeShareMemoryModal() {
+  document.getElementById("shareMemoryModal").style.display = "none";
+  document.getElementById("shareWithUserEmail").value = "";
+  document.getElementById("shareUserSuggestionList").innerHTML =
+    '<div class="loading-message">Enter an email to find users.</div>';
+  document.getElementById("memoryFile").value = null;
+  selectedUserForSharing = null;
+}
+
+function renderShareUserResults(users) {
+  const usersList = document.getElementById("shareUserSuggestionList");
+  usersList.innerHTML = ""; // Clear previous results or message
 
   if (users.length === 0) {
-    usersList.innerHTML =
-      '<div class="loading-message">Không tìm thấy người dùng</div>';
+    usersList.innerHTML = '<div class="loading-message">No users found.</div>';
     return;
   }
 
-  usersList.innerHTML = "";
-
   users.forEach((user) => {
-    const userItem = createUserSearchElement(user);
+    const userItem = createShareUserElement(user);
     usersList.appendChild(userItem);
   });
 }
 
-function createUserSearchElement(user) {
+function createShareUserElement(user) {
   const div = document.createElement("div");
-  div.className = "user-item";
-  div.onclick = () => startChatWithUser(user);
+  div.className = "user-item"; // Reuse existing class for styling
+  div.onclick = () => selectUserForSharing(user, div);
 
   const avatarContent = user.profilePic
     ? `<img src="${API_BASE_URL.replace("/api", "")}${user.profilePic}" alt="${
@@ -609,13 +598,185 @@ function createUserSearchElement(user) {
         <div class="user-avatar">${avatarContent}</div>
         <div class="user-info">
             <div class="user-name">${escapeHtml(
-              user.name || "Unknown User"
+              user.username || "Unknown User"
             )}</div>
             <div class="user-email">${escapeHtml(user.email || "")}</div>
         </div>
     `;
-
   return div;
+}
+
+function selectUserForSharing(user, element) {
+  selectedUserForSharing = user;
+  // Highlight selected user
+  const allUserItems = document.querySelectorAll(
+    "#shareUserSuggestionList .user-item"
+  );
+  allUserItems.forEach((item) => item.classList.remove("selected"));
+  element.classList.add("selected");
+  console.log("User selected for sharing:", selectedUserForSharing);
+  // Optionally, update the input field or display selection more prominently
+  document.getElementById("shareWithUserEmail").value = user.email;
+  // Hide the list after selection
+  // document.getElementById("shareUserSuggestionList").style.display = 'none';
+}
+
+async function handleShareMemory() {
+  const memoryFile = document.getElementById("memoryFile").files[0];
+
+  if (!memoryFile) {
+    alert("Please select a memory (file) to share.");
+    return;
+  }
+
+  if (!selectedUserForSharing) {
+    alert(
+      "Please select a user to share with by typing their email and clicking on the suggestion."
+    );
+    return;
+  }
+
+  console.log(
+    `Sharing memory: ${memoryFile.name} with user: ${selectedUserForSharing.name} (${selectedUserForSharing.email})`
+  );
+  alert(
+    `Sharing '${memoryFile.name}' with ${selectedUserForSharing.name} (${selectedUserForSharing.email}).\n(Actual sharing functionality needs backend implementation.)`
+  );
+
+  closeShareMemoryModal();
+}
+
+async function searchUsers() {
+  const query = document.getElementById("searchFriendInput").value.trim();
+  console.log(query);
+  if (!query || query.length < 1) {
+    document.getElementById("friendSearchResultsContainer").innerHTML =
+      '<div class="loading-message">Nhập email hoặc tên để tìm kiếm người dùng...</div>';
+    return;
+  }
+
+  // Show searching state
+  document.getElementById("friendSearchResultsContainer").innerHTML =
+    '<div class="loading-message">🔍 Đang tìm kiếm...</div>';
+
+  // Debounce search
+  renderSearchResults(user_friendList, query);
+}
+
+function renderSearchResults(users, query) {
+  const usersList = document.getElementById("friendSearchResultsContainer");
+
+  if (users.length === 0) {
+    usersList.innerHTML =
+      '<div class="loading-message">Không tìm thấy người dùng</div>';
+    return;
+  }
+  usersList.innerHTML = "";
+
+  users.forEach((user) => {
+    if (user.email.toLowerCase().includes(query.toLowerCase())) {
+      const userItem = createUserProfileElement(user);
+      usersList.appendChild(userItem);
+    }
+  });
+}
+
+function createUserProfileElement(user) {
+  const div = document.createElement("div");
+  // Use a more specific class if needed, or rely on user-item and .friend-search-results-container for context
+  div.className = "friend-search-result-item user-item"; // Match class from previous versions for styling
+  div.onclick = () => openFriendDetailModal(user);
+
+  const defaultAvatar = "logo/profile-icon-white.png"; // Ensure this path is correct
+  // Construct profilePic URL relative to API_BASE_URL if it's a partial path
+  const avatarUrl = user.profilePic
+    ? user.profilePic.startsWith("http")
+      ? user.profilePic
+      : `${API_BASE_URL.replace("/api", "")}${user.profilePic}`
+    : defaultAvatar;
+
+  let avatarHTML;
+  if (user.profilePic) {
+    avatarHTML = `<img src="${escapeHtml(avatarUrl)}" alt="${escapeHtml(
+      user.name || user.email
+    )}" class="user-avatar-img" onerror="this.onerror=null; this.style.display='none'; const initial = (this.alt.charAt(0) || '?').toUpperCase(); const parent = this.parentElement; parent.innerHTML = \`<div class='user-avatar-initial'>\${initial}</div>\`;">`;
+  } else {
+    const initial = (user.name || user.email)?.charAt(0).toUpperCase() || "?";
+    avatarHTML = `<div class="user-avatar-initial">${escapeHtml(
+      initial
+    )}</div>`;
+  }
+
+  div.innerHTML = `
+    <div class="user-avatar-container">
+      ${avatarHTML}
+    </div>
+    <div class="user-info">
+      <div class="user-name">${escapeHtml(user.username || "N/A")}</div>
+      <div class="user-email">${escapeHtml(user.email || "N/A")}</div>
+    </div>
+  `; // Removed " мужчины" placeholder
+  return div;
+}
+
+// Function to open friend detail modal
+function openFriendDetailModal(user) {
+  if (!user) return;
+
+  const modal = document.getElementById("friendDetailModal");
+  const avatarImg = document.getElementById("friendDetailAvatar");
+  const avatarInitialDiv = document.getElementById("friendDetailAvatarInitial"); // Div for initials
+  const usernameEl = document.getElementById("friendDetailUsername");
+  const emailEl = document.getElementById("friendDetailEmail");
+  const addBtn = document.getElementById("friendDetailAddBtn");
+  const statusMsg = document.getElementById("friendDetailStatusMsg");
+
+  // Populate avatar
+  const defaultAvatarPath = "logo/profile-icon-white.png";
+  avatarInitialDiv.innerHTML = ""; // Clear previous initials
+  avatarInitialDiv.style.display = "none";
+  avatarImg.style.display = "none";
+
+  if (user.profilePic) {
+    const picSrc = user.profilePic.startsWith("http")
+      ? user.profilePic
+      : `${API_BASE_URL.replace("/api", "")}${user.profilePic}`;
+    avatarImg.src = picSrc;
+    avatarImg.alt = user.name || user.email;
+    avatarImg.style.display = "block";
+    avatarImg.onerror = () => {
+      avatarImg.style.display = "none";
+      const initial = (user.name || user.email)?.charAt(0).toUpperCase() || "?";
+      avatarInitialDiv.textContent = initial;
+      avatarInitialDiv.style.display = "flex";
+    };
+  } else {
+    const initial = (user.name || user.email)?.charAt(0).toUpperCase() || "?";
+    avatarInitialDiv.textContent = initial;
+    avatarInitialDiv.style.display = "flex";
+  }
+
+  usernameEl.textContent = escapeHtml(user.username || "N/A");
+  emailEl.textContent = escapeHtml(user.email || "N/A");
+
+  // Reset button state and status message
+  addBtn.textContent = "Thêm bạn bè";
+  addBtn.disabled = false;
+  // Pass true for isFromModal to handle UI updates in the modal
+  addBtn.onclick = () => sendFriendRequest(user.email, true);
+  statusMsg.textContent = "";
+  statusMsg.style.display = "none";
+  statusMsg.className = "friend-detail-status"; // Reset classes
+
+  modal.style.display = "block";
+}
+
+// Function to close friend detail modal
+function closeFriendDetailModal() {
+  const modal = document.getElementById("friendDetailModal");
+  if (modal) {
+    modal.style.display = "none";
+  }
 }
 
 async function startChatWithUser(user) {
@@ -631,7 +792,7 @@ async function startChatWithUser(user) {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        other_user_id: user.id,
+        other_user_email: user.email,
       }),
     });
 
@@ -784,9 +945,18 @@ window.addEventListener("beforeunload", function () {
 
 // Close modal when clicking outside
 window.addEventListener("click", function (event) {
-  const modal = document.getElementById("newChatModal");
-  if (event.target === modal) {
+  const newChatModal = document.getElementById("newChatModal");
+  const shareMemoryModal = document.getElementById("shareMemoryModal");
+  const friendDetailModal = document.getElementById("friendDetailModal");
+
+  if (event.target === newChatModal) {
     closeNewChatModal();
+  }
+  if (event.target === shareMemoryModal) {
+    closeShareMemoryModal();
+  }
+  if (friendDetailModal && event.target === friendDetailModal) {
+    closeFriendDetailModal();
   }
 });
 
@@ -835,3 +1005,278 @@ function testMessagePositioning() {
 
 // Make it available globally for testing
 window.testMessagePositioning = testMessagePositioning;
+
+async function sendFriendRequest(targetUserId, isFromModal = false) {
+  console.log(
+    `Attempting to send friend request to user ID: ${targetUserId}, fromModal: ${isFromModal}`
+  );
+
+  let buttonToUpdate;
+  let statusMessageElement;
+
+  if (isFromModal) {
+    buttonToUpdate = document.getElementById("friendDetailAddBtn");
+    statusMessageElement = document.getElementById("friendDetailStatusMsg");
+  } else {
+    // Fallback for non-modal scenarios (e.g., if a button was directly in search results)
+    // This part might need adjustment if you don't have add friend buttons outside modals.
+    // For now, focusing on the modal case.
+    console.warn(
+      "sendFriendRequest called without modal context and no fallback UI logic implemented for button updates."
+    );
+  }
+
+  if (buttonToUpdate) {
+    buttonToUpdate.textContent = "Đang gửi...";
+    buttonToUpdate.disabled = true;
+  }
+  if (statusMessageElement) {
+    statusMessageElement.textContent = "Đang gửi yêu cầu...";
+    statusMessageElement.className =
+      "friend-detail-status friend-detail-status-processing";
+    statusMessageElement.style.display = "block";
+  }
+
+  try {
+    const token =
+      localStorage.getItem("idToken") || sessionStorage.getItem("idToken");
+    if (!token) {
+      const errorMsg = "Lỗi xác thực. Vui lòng đăng nhập lại.";
+      showError(errorMsg);
+      if (buttonToUpdate) {
+        buttonToUpdate.textContent = "Thêm bạn";
+        buttonToUpdate.disabled = false;
+      }
+      if (statusMessageElement) {
+        statusMessageElement.textContent = errorMsg;
+        statusMessageElement.className =
+          "friend-detail-status friend-detail-status-error";
+      }
+      return;
+    }
+
+    const response = await fetch(`${API_BASE_URL}/friends/request`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({ target_user_email: targetUserId }),
+    });
+
+    const responseData = await response.json();
+
+    if (response.ok && responseData.success) {
+      const successMsg =
+        responseData.message || "Yêu cầu kết bạn đã được gửi thành công!";
+      // For modal, update status message. For general, alert.
+      if (statusMessageElement) {
+        statusMessageElement.textContent = successMsg;
+        statusMessageElement.className =
+          "friend-detail-status friend-detail-status-success";
+      } else {
+        alert(successMsg);
+      }
+      if (buttonToUpdate) {
+        buttonToUpdate.textContent = "Đã gửi YC";
+        // buttonToUpdate.disabled = true; // Keep disabled
+      }
+      // Optionally close modal on success after a delay
+      // if (isFromModal) setTimeout(closeFriendDetailModal, 2000);
+    } else {
+      const errorMessage =
+        responseData.detail ||
+        responseData.message ||
+        "Không thể gửi yêu cầu kết bạn.";
+
+      if (statusMessageElement) {
+        statusMessageElement.textContent = errorMessage;
+        statusMessageElement.className =
+          "friend-detail-status friend-detail-status-error";
+      } else {
+        showError(errorMessage); // Use main alert for errors if no modal status element
+      }
+      console.error(
+        `Failed to send friend request (HTTP ${response.status}):`,
+        responseData
+      );
+      if (buttonToUpdate) {
+        if (response.status === 409) {
+          // Conflict
+          buttonToUpdate.textContent =
+            responseData.message || "Yêu cầu đã tồn tại";
+        } else {
+          buttonToUpdate.textContent = "Thêm bạn";
+          buttonToUpdate.disabled = false; // Re-enable for other errors
+        }
+      }
+    }
+  } catch (error) {
+    const networkErrorMsg =
+      "Lỗi mạng hoặc lỗi khác khi gửi yêu cầu kết bạn. Vui lòng thử lại.";
+    console.error("Network or other error sending friend request:", error);
+    if (statusMessageElement) {
+      statusMessageElement.textContent = networkErrorMsg;
+      statusMessageElement.className =
+        "friend-detail-status friend-detail-status-error";
+    } else {
+      showError(networkErrorMsg);
+    }
+    if (buttonToUpdate) {
+      buttonToUpdate.textContent = "Thêm bạn";
+      buttonToUpdate.disabled = false;
+    }
+  }
+}
+
+function renderFriendRequests(requests) {
+  const listContainer = document.getElementById("friendRequestListContainer");
+  listContainer.innerHTML = ""; // Clear loading message or previous content
+
+  if (requests.length === 0) {
+    listContainer.innerHTML =
+      '<div class="no-requests-message">No pending friend requests.</div>';
+    return;
+  }
+
+  requests.forEach((request) => {
+    const requestElement = createFriendRequestElement(request);
+    listContainer.appendChild(requestElement);
+  });
+}
+
+function createFriendRequestElement(request) {
+  const item = document.createElement("div");
+  item.className = "friend-request-item";
+  // Handle both the expected structure and the actual structure from backend
+  let requester;
+  if (request.requester_info) {
+    // Expected structure with nested requester_info
+    requester = request.requester_info;
+  } else {
+    // Actual structure from backend - user info is directly in the request
+    requester = {
+      username: request.username || "Unknown User",
+      email: request.email || "No email",
+      profilePic: request.profilePic || null,
+    };
+  }
+
+  const defaultAvatar = "logo/profile-icon-white.png";
+  let avatarHTML;
+
+  if (requester.profilePic) {
+    const avatarUrl = requester.profilePic.startsWith("http")
+      ? requester.profilePic
+      : `${API_BASE_URL.replace("/api", "")}${requester.profilePic}`;
+    avatarHTML = `<img src="${escapeHtml(avatarUrl)}" alt="${escapeHtml(
+      requester.username || "User"
+    )}" onerror="this.onerror=null; this.src='${defaultAvatar}';">`;
+  } else {
+    const initial = (requester.name || "U").charAt(0).toUpperCase();
+    avatarHTML = `<div class="initials">${escapeHtml(initial)}</div>`;
+  }
+
+  item.innerHTML = `
+    <div class="request-item-avatar">
+      ${avatarHTML}
+    </div>
+    <div class="request-item-info">
+      <div class="request-item-name">${escapeHtml(
+        requester.username || "Unknown User"
+      )}</div>
+      <div class="request-item-email">${escapeHtml(
+        requester.email || "No email"
+      )}</div>
+    </div>
+    <div class="request-item-actions">
+      <button class="btn-accept">Accept</button>
+      <button class="btn-decline">Decline</button>
+    </div>
+  `;
+
+  const acceptButton = item.querySelector(".btn-accept");
+  const declineButton = item.querySelector(".btn-decline");
+
+  const requestEmail = request.email || `temp-${Date.now()}`;
+  acceptButton.addEventListener("click", () =>
+    handleFriendRequestAction(requestEmail, "accepted", item)
+  );
+  declineButton.addEventListener("click", () =>
+    handleFriendRequestAction(requestEmail, "declined", item)
+  );
+
+  return item;
+}
+
+async function handleFriendRequestAction(
+  requestEmail,
+  action,
+  listItemElement
+) {
+  // Visually disable buttons immediately
+  const buttons = listItemElement.querySelectorAll("button");
+  buttons.forEach((btn) => (btn.disabled = true));
+  listItemElement.style.opacity = 0.7;
+
+  try {
+    const token =
+      localStorage.getItem("idToken") || sessionStorage.getItem("idToken");
+    if (!token) {
+      alert("Authentication error. Please log in again.");
+      buttons.forEach((btn) => (btn.disabled = false)); // Re-enable
+      listItemElement.style.opacity = 1;
+      return;
+    }
+    const formData = new FormData();
+    formData.append("request_email", requestEmail);
+    formData.append("action", action);
+
+    const response = await fetch(`${API_BASE_URL}/friend_requests`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`, // DO NOT manually set Content-Type
+      },
+      body: formData,
+    });
+
+    const responseData = await response.json();
+    console.log(responseData);
+    if (response.ok && responseData.success) {
+      alert(responseData.message || `Request ${action} successfully.`);
+      // Remove item from UI
+      listItemElement.remove();
+
+      // Check if friend request list is now empty
+      const friendRequestList = document.getElementById("friendRequestList");
+      const friendRequestBlock = document.getElementById("friendRequestBlock");
+
+      if (friendRequestList && friendRequestList.children.length === 0) {
+        // Hide the entire friend request block when no requests remain
+        if (friendRequestBlock) {
+          friendRequestBlock.style.display = "none";
+        }
+      }
+
+      // Update the friend_requests data to reflect the change
+      if (friend_requests.data) {
+        friend_requests.data = friend_requests.data.filter(
+          (req) => req.email !== requestEmail
+        );
+      }
+    } else {
+      alert(
+        responseData.message || "Failed to process request. Please try again."
+      );
+      buttons.forEach((btn) => (btn.disabled = false)); // Re-enable on error
+      listItemElement.style.opacity = 1;
+    }
+  } catch (error) {
+    console.error(`Error ${action} friend request:`, error);
+    alert("An error occurred. Please try again.");
+    buttons.forEach((btn) => (btn.disabled = false)); // Re-enable on error
+    listItemElement.style.opacity = 1;
+  }
+}
+
+// ---- End Friend Request Panel Logic ----

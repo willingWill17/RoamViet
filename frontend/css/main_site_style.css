@@ -37,7 +37,7 @@ header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 7px 50px;
+  padding: 5px 50px;
   background-color: rgba(0, 0, 0, 0.3);
   position: relative;
   z-index: 1;
@@ -104,6 +104,45 @@ header {
   height: 35px;
 }
 
+/* Notification Badge Styles */
+.contact-icons .icon {
+  position: relative; /* Ensure the parent is a positioning context for the badge */
+  display: inline-block; /* Or block, depending on your layout */
+}
+
+.notification-badge {
+  position: absolute;
+  top: -5px; /* Adjust as needed */
+  right: -5px; /* Adjust as needed */
+  background-color: red;
+  color: white;
+  border-radius: 50%;
+  padding: 2px 6px; /* Adjust for content size */
+  font-size: 10px;
+  font-weight: bold;
+  min-width: 16px; /* Ensure it's somewhat circular even with single digit */
+  height: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  border: 1px solid white; /* Optional: adds a small border */
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.3); /* Optional: adds a subtle shadow */
+  z-index: 10; /* Ensure it's above the icon */
+}
+
+/* Responsive adjustments if necessary */
+@media (max-width: 768px) {
+  .notification-badge {
+    top: 0px;
+    right: 0px;
+    font-size: 9px;
+    padding: 1px 5px;
+    min-width: 14px;
+    height: 14px;
+  }
+}
+
 /* Main Content */
 .content {
   height: calc(100vh - 90px);
@@ -156,4 +195,157 @@ header {
   background-color: grey;
   transform: translateY(-3px);
   box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+}
+
+/* Friend Request Panel Styles */
+.friend-request-panel {
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: 350px; /* Adjust as needed */
+  height: 100vh;
+  background-color: #ffffff;
+  box-shadow: -5px 0 15px rgba(0, 0, 0, 0.15);
+  z-index: 1001; /* Higher than header, lower than full-screen modals if any */
+  transform: translateX(100%);
+  transition: transform 0.3s ease-in-out;
+  display: flex;
+  flex-direction: column;
+  color: #333; /* Text color for panel content */
+}
+
+.friend-request-panel.open {
+  transform: translateX(0);
+}
+
+.friend-request-panel .panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 20px;
+  background-color: #f8f9fa;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.friend-request-panel .panel-header h3 {
+  margin: 0;
+  font-size: 18px;
+  color: #333;
+}
+
+.friend-request-panel .close-panel-btn {
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  color: #888;
+  padding: 5px;
+  line-height: 1;
+}
+
+.friend-request-panel .close-panel-btn:hover {
+  color: #333;
+}
+
+.friend-request-panel .panel-body {
+  flex-grow: 1;
+  overflow-y: auto;
+  padding: 15px;
+}
+
+.friend-request-panel .loading-message,
+.friend-request-panel .no-requests-message {
+  text-align: center;
+  color: #777;
+  padding: 20px;
+  font-style: italic;
+}
+
+.friend-request-item {
+  display: flex;
+  align-items: center;
+  padding: 12px 0;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.friend-request-item:last-child {
+  border-bottom: none;
+}
+
+.request-item-avatar {
+  width: 45px;
+  height: 45px;
+  border-radius: 50%;
+  overflow: hidden;
+  margin-right: 12px;
+  background-color: #e9ecef;
+  flex-shrink: 0;
+}
+
+.request-item-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.request-item-avatar .initials {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  color: #555;
+}
+
+.request-item-info {
+  flex-grow: 1;
+  min-width: 0; /* For text truncation if needed */
+}
+
+.request-item-name {
+  font-weight: 600;
+  color: #333;
+  font-size: 15px;
+  margin-bottom: 2px;
+}
+
+.request-item-email {
+  font-size: 13px;
+  color: #666;
+}
+
+.request-item-actions {
+  display: flex;
+  gap: 8px;
+  margin-left: 10px;
+}
+
+.request-item-actions .btn-accept,
+.request-item-actions .btn-decline {
+  padding: 6px 10px;
+  font-size: 12px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  font-weight: 500;
+}
+
+.request-item-actions .btn-accept {
+  background-color: #28a745; /* Green */
+  color: white;
+}
+
+.request-item-actions .btn-accept:hover {
+  background-color: #218838;
+}
+
+.request-item-actions .btn-decline {
+  background-color: #dc3545; /* Red */
+  color: white;
+}
+
+.request-item-actions .btn-decline:hover {
+  background-color: #c82333;
 }

@@ -16,10 +16,10 @@ body {
 .content {
   width: 90%;
   max-width: 1400px;
-  padding: 20px;
+  /* padding: 20px; */
   position: relative;
   box-sizing: border-box;
-  margin: 30px auto 0;
+  margin: 10px auto 0;
   min-height: calc(100vh - 100px);
   display: flex;
   flex-direction: column;
@@ -75,7 +75,6 @@ body {
 .search-bar {
   width: 100%;
   padding: 12px 20px;
-  margin: 20px 0;
   border: none;
   border-radius: 30px;
   background-color: rgba(255, 255, 255, 0.8);
@@ -125,29 +124,32 @@ body {
   position: absolute;
   right: 20px;
   top: 20px;
-  width: 400px;
-  background-color: rgba(0, 0, 0, 0.7);
-  padding: 20px;
-  border-radius: 8px;
+  width: 450px;
+  max-height: 75vh;
+  overflow-y: auto;
+  background-color: rgba(25, 25, 25, 0.85);
+  padding: 25px;
+  border-radius: 12px;
   color: #ffffff;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.4);
   z-index: 100;
   max-width: calc(100% - 40px);
-  backdrop-filter: blur(5px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
 }
 
 .province-info-panel h2 {
   margin-top: 0;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.3);
-  padding-bottom: 10px;
-  color: #0c7489;
-  font-size: 24px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+  padding-bottom: 15px;
+  color: #66b2ff;
+  font-size: 26px;
 }
 
 .province-info-panel p {
-  line-height: 1.6;
+  line-height: 1.7;
   margin-bottom: 20px;
+  color: #e0e0e0;
 }
 
 .province-attractions h3 {
@@ -357,21 +359,26 @@ body {
   font-size: 12px;
   color: #666;
 }
-
+/*  */
 .photo-preview {
   position: relative;
   border-radius: 8px;
   overflow: hidden;
   border: 2px solid #e0e0e0;
+  width: 100%; /* or a specific width, like 300px */
+  height: 150px; /* ✅ fixed height to prevent resizing */
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .photo-preview img {
-  width: 100%;
-  height: 200px;
-  object-fit: cover;
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain; /* ✅ prevent image from overflowing or cropping */
   display: block;
 }
-
+/*  */
 .remove-photo {
   position: absolute;
   top: 10px;
@@ -552,37 +559,39 @@ body {
 
 /* User Memories Section in Province Info Panel */
 .user-memories-section {
-  margin: 20px 0;
+  margin-top: 25px;
   padding-top: 15px;
-  border-top: 1px solid rgba(255, 255, 255, 0.3);
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .user-memories-section h3 {
-  margin: 0 0 15px 0;
-  font-size: 16px;
-  color: #0c7489;
-  font-weight: 600;
+  margin-bottom: 15px;
+  font-size: 20px;
+  color: #aaccff;
 }
 
 .memories-list {
-  max-height: 200px;
+  max-height: 300px;
   overflow-y: auto;
-  padding-right: 5px;
+  padding-right: 10px;
+  margin-right: -10px;
 }
 
 .memory-item {
-  background: rgba(255, 255, 255, 0.1);
+  background-color: rgba(40, 40, 40, 0.85);
+  padding: 15px;
   border-radius: 8px;
-  padding: 12px;
-  margin-bottom: 10px;
+  margin-bottom: 15px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
   display: flex;
-  gap: 12px;
   align-items: flex-start;
-  transition: background-color 0.2s ease;
+  transition: background-color 0.3s ease, transform 0.2s ease;
 }
 
 .memory-item:hover {
-  background: rgba(255, 255, 255, 0.15);
+  background-color: rgba(55, 55, 55, 0.9);
+  transform: translateY(-2px);
 }
 
 .memory-item:last-child {
@@ -590,45 +599,47 @@ body {
 }
 
 .memory-content {
-  flex: 1;
-  min-width: 0;
+  flex-grow: 1;
+  color: #dcdcdc;
 }
 
 .memory-content h4 {
-  margin: 0 0 5px 0;
-  font-size: 14px;
+  margin-top: 0;
+  margin-bottom: 8px;
+  font-size: 1.15em;
+  color: #e8e8e8;
   font-weight: 600;
-  color: #ffffff;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
 }
 
 .memory-content p {
-  margin: 0 0 5px 0;
-  font-size: 12px;
-  line-height: 1.4;
-  color: rgba(255, 255, 255, 0.9);
+  font-size: 0.95em;
+  line-height: 1.5;
+  margin-bottom: 10px;
+  color: #b0b0b0;
 }
 
 .memory-content small {
-  font-size: 11px;
-  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.8em;
+  color: #909090;
+  display: block;
+  margin-top: 5px;
 }
 
 .memory-photo {
-  flex-shrink: 0;
-  width: 50px;
-  height: 50px;
+  width: 100px;
+  height: 100px;
+  margin-left: 15px;
   border-radius: 6px;
   overflow: hidden;
-  background: rgba(255, 255, 255, 0.1);
+  flex-shrink: 0;
+  background-color: #333;
 }
 
 .memory-photo img {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  display: block;
 }
 
 /* Custom scrollbar for memories list */
@@ -656,21 +667,21 @@ body {
   gap: 10px;
   flex-wrap: wrap;
   margin-top: 15px;
-  margin-bottom: 10px; /* Added some bottom margin */
+  margin-bottom: 10px;
 }
 
 .province-actions button {
-  padding: 8px 16px; /* Consistent padding */
+  padding: 8px 16px;
   border: none;
   border-radius: 4px;
   cursor: pointer;
   transition: background-color 0.3s ease, transform 0.2s ease;
   font-weight: bold;
-  font-size: 0.9rem; /* Slightly smaller font for consistency */
+  font-size: 0.9rem;
 }
 
 .read-more-btn {
-  background-color: #0c7489; /* Original blue */
+  background-color: #0c7489;
   color: #ffffff;
 }
 .read-more-btn:hover {
@@ -679,7 +690,7 @@ body {
 }
 
 .add-memory-btn {
-  background-color: #5cb85c; /* A slightly different green */
+  background-color: #5cb85c;
   color: #ffffff;
 }
 .add-memory-btn:hover {
@@ -688,7 +699,7 @@ body {
 }
 
 .view-memory-btn {
-  background-color: #f0ad4e; /* Orange for view */
+  background-color: #f0ad4e;
   color: #ffffff;
 }
 .view-memory-btn:hover {
@@ -703,7 +714,7 @@ body {
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(0, 0, 0, 0.65); /* Slightly darker backdrop */
+  background-color: rgba(0, 0, 0, 0.65);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -712,23 +723,19 @@ body {
 }
 
 .memory-viewing-modal .modal-content {
-  background: #f9f9f9; /* Lighter background for modal content */
+  background: #f9f9f9;
   border-radius: 10px;
   box-shadow: 0 5px 20px rgba(0, 0, 0, 0.25);
   max-width: 800px;
   width: 90%;
-  max-height: 85vh; /* Increased max height slightly */
+  max-height: 85vh;
   overflow: hidden;
   display: flex;
   flex-direction: column;
 }
 
 .memory-viewing-modal .modal-header {
-  background: linear-gradient(
-    135deg,
-    #6c757d 0%,
-    #5a6268 100%
-  ); /* Neutral gradient */
+  background: linear-gradient(135deg, #6c757d 0%, #5a6268 100%);
   color: white;
   padding: 18px 22px;
   display: flex;
@@ -763,15 +770,12 @@ body {
   padding: 20px;
   overflow-y: auto;
   flex-grow: 1;
-  background-color: #ffffff; /* White background for body content area */
+  background-color: #ffffff;
 }
 
 .memory-viewing-modal .memories-grid {
   display: grid;
-  grid-template-columns: repeat(
-    auto-fill,
-    minmax(280px, 1fr)
-  ); /* Slightly smaller min card width */
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
   gap: 18px;
 }
 
@@ -790,9 +794,9 @@ body {
 
 .memory-viewing-modal .memory-image {
   width: 100%;
-  height: 180px; /* Adjusted height */
+  height: 180px;
   overflow: hidden;
-  background-color: #f0f0f0; /* Placeholder background */
+  background-color: #f0f0f0;
 }
 
 .memory-viewing-modal .memory-image img {
@@ -835,11 +839,11 @@ body {
   line-height: 1.5;
   margin-bottom: 10px;
   display: -webkit-box;
-  -webkit-line-clamp: 3; /* Show up to 3 lines */
+  -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow: hidden;
   text-overflow: ellipsis;
-  min-height: calc(1.5em * 3); /* Ensure space for 3 lines */
+  min-height: calc(1.5em * 3);
 }
 
 .memory-viewing-modal .memory-details small {
@@ -849,7 +853,7 @@ body {
 
 .memory-viewing-modal .modal-footer {
   padding: 15px 22px;
-  background: #f1f3f5; /* Lighter footer */
+  background: #f1f3f5;
   display: flex;
   justify-content: flex-end;
   border-top: 1px solid #dee2e6;
@@ -899,13 +903,118 @@ body {
     max-height: 90vh;
   }
   .memory-viewing-modal .memories-grid {
-    grid-template-columns: 1fr; /* Single column on smaller screens */
+    grid-template-columns: 1fr;
   }
   .province-actions button {
-    width: 100%; /* Make buttons full width on small screens */
+    width: 100%;
     margin-bottom: 8px;
   }
   .province-actions button:last-child {
     margin-bottom: 0;
   }
 }
+
+/* === Shared Emails Section Styling - Start === */
+.memory-registration-panel .form-group {
+  margin-bottom: 20px;
+}
+.memory-registration-panel .form-group > div:has(#shareWithUserEmailInput) {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 5px;
+}
+#shareWithUserEmailInput {
+  flex-grow: 1;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 1em;
+}
+.add-share-email-btn {
+  padding: 10px 15px;
+  background-color: #5cb85c;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 1em;
+  transition: background-color 0.2s ease-in-out;
+}
+.add-share-email-btn:hover {
+  background-color: #4cae4c;
+}
+/* === Shared Emails Section Styling - End First Chunk === */
+
+/* === Shared Emails Section Styling - Second Chunk === */
+.search-instructions {
+  font-size: 0.85em;
+  color: #555;
+  margin-bottom: 10px;
+}
+/* Suggestion list styling */
+#shareUserSuggestionListInPanel {
+  border-radius: 4px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+#shareUserSuggestionListInPanel .share-user-item {
+  padding: 10px;
+  cursor: pointer;
+  border-bottom: 1px solid #eee;
+  background-color: #fff;
+}
+#shareUserSuggestionListInPanel .share-user-item:last-child {
+  border-bottom: none;
+}
+#shareUserSuggestionListInPanel .share-user-item:hover {
+  background-color: #f0f0f0;
+}
+#shareUserSuggestionListInPanel div[style*="padding: 8px"] {
+  padding: 12px;
+  text-align: center;
+  color: #333;
+  background-color: #f9f9f9;
+}
+/* === Shared Emails Section Styling - End Second Chunk === */
+
+/* === Shared Emails Section Styling - Third Chunk === */
+#sharedEmailList {
+  list-style: none;
+  padding: 0;
+  margin-top: 15px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  background-color: #fdfdfd;
+  max-height: 150px;
+  overflow-y: auto;
+}
+#sharedEmailList li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 12px;
+  border-bottom: 1px solid #eee;
+  font-size: 0.95em;
+  color: #333;
+}
+#sharedEmailList li:last-child {
+  border-bottom: none;
+}
+#sharedEmailList li span {
+  word-break: break-all;
+}
+#sharedEmailList li button {
+  margin-left: 10px;
+  cursor: pointer;
+  border: none;
+  background: transparent;
+  color: #d9534f;
+  font-size: 1.3em;
+  padding: 0 5px;
+  line-height: 1;
+  transition: color 0.2s ease-in-out;
+}
+#sharedEmailList li button:hover {
+  color: #c9302c;
+}
+/* === Shared Emails Section Styling - End Third Chunk === */

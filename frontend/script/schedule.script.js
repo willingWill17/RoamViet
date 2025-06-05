@@ -2,12 +2,13 @@
 const API_BASE = "http://127.0.0.1:3053/api";
 let currentSchedules = [];
 let editingScheduleId = null;
-let sharedEmails = []; // Store shared email addresses
 let searchTimeout = null; // For debounced search
 let currentSearchResults = []; // Store current search results
 let dailyPlans = {}; // Store daily plans with custom time phases by date
+let user_friendList = [];
+let sharedEmails = [];
 
-document.addEventListener("DOMContentLoaded", function () {
+document.addEventListener("DOMContentLoaded", async function () {
   // Check authentication first
   if (typeof isAuthenticated !== "function") {
     console.error("Authentication functions not loaded. Redirecting to login.");
@@ -19,9 +20,88 @@ document.addEventListener("DOMContentLoaded", function () {
     window.location.href = "login.html";
     return;
   }
-
+  user_friendList = await get_user_friendList();
   initializeSchedulePage();
 });
+
+async function get_user_friendList() {
+  const token = localStorage.getItem("idToken");
+  const get_friendList_url = `${API_BASE}/get_friends`;
+  const response = await fetch(get_friendList_url, {
+    method: "GET",
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
+  });
+  return response.json();
+}
+
+let scheduleSearchDebounceTimeout;
+
+async function searchUsersForSharingInPanel() {
+  const emailInput = document.getElementById("emailInput");
+  const query = emailInput.value.trim().toLowerCase();
+
+  // The results container is userSearchResults, not shareUserSuggestionListInPanel for schedule.html
+  const resultsContainer = document.getElementById("userSearchResults");
+  if (!resultsContainer) {
+    console.error(
+      "Search results container 'userSearchResults' not found in searchUsersForSharingInPanel."
+    );
+    return;
+  }
+
+  clearTimeout(scheduleSearchDebounceTimeout);
+
+  if (query.length < 1) {
+    // Minimum characters to start search
+    hideSearchResults(); // This function should target 'userSearchResults'
+    return;
+  }
+
+  scheduleSearchDebounceTimeout = setTimeout(() => {
+    // Ensure user_friendList and user_friendList.data are available
+    if (
+      typeof user_friendList === "undefined" ||
+      typeof user_friendList.data === "undefined" ||
+      !Array.isArray(user_friendList.data)
+    ) {
+      console.warn(
+        "[Schedule Script] user_friendList.data not populated yet or not an array."
+      );
+      showNoResults(
+        "Friend list is loading or unavailable. Try again shortly."
+      );
+      return;
+    }
+
+    if (user_friendList.data.length === 0) {
+      console.log("[Schedule Script] user_friendList.data is empty."); // Corrected from previous user_friendList is empty
+      showNoResults(
+        "You currently have no friends to share with. Add friends in the messaging section."
+      );
+      return;
+    }
+
+    // Iterate through the user_friendList.data and find the user with the email that matches the query
+    const filteredFriends = user_friendList.data.filter((friend) => {
+      // Ensure friend.email exists and is a string before calling toLowerCase() and includes()
+      return (
+        friend.email &&
+        typeof friend.email === "string" &&
+        friend.email.toLowerCase().includes(query) // query is already toLowerCase()
+      );
+    });
+    console.log(filteredFriends, filteredFriends.length); // Your existing log
+
+    if (filteredFriends.length > 0) {
+      displaySearchResults(filteredFriends);
+    } else {
+      showNoResults("No matching friends found for your search."); // Restored handling for no results
+    }
+  }, 300); // 300ms debounce time
+}
 
 function initializeSchedulePage() {
   setupEventListeners();
@@ -46,7 +126,7 @@ function setupEventListeners() {
       }
     });
   });
-
+  // console.log("92");
   // Form submission
   document
     .getElementById("scheduleForm")
@@ -92,7 +172,6 @@ function setupEventListeners() {
 
   // User search functionality
   emailInput.addEventListener("input", handleEmailSearch);
-  emailInput.addEventListener("focus", handleEmailSearch);
   emailInput.addEventListener("blur", function (e) {
     // Delay hiding results to allow clicking on them
     setTimeout(() => {
@@ -131,43 +210,49 @@ function setupEventListeners() {
 }
 
 async function loadUserSchedules() {
-  try {
-    // Load both user's own schedules and shared schedules in parallel
-    const ownSchedulesResponse = await authenticatedFetch(
-      `${API_BASE}/get_schedules`
-    );
-
-    let allSchedules = [];
-
-    // Process user's own schedules
-    if (ownSchedulesResponse && ownSchedulesResponse.ok) {
-      const ownResult = await ownSchedulesResponse.json();
-      if (ownResult.success) {
-        const ownSchedules = ownResult.owned_data.map((schedule) => ({
-          ...schedule,
-          isOwner: true,
-          shareType: "owned",
-        }));
-        const sharedSchedules = ownResult.shared_data.map((schedule) => ({
-          ...schedule,
-          isOwner: false,
-          shareType: "shared",
-        }));
-        allSchedules = [...allSchedules, ...ownSchedules, ...sharedSchedules];
-      }
-    }
-
-    // Sort schedules by creation date (newest first)
-    allSchedules.sort(
-      (a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0)
-    );
-    console.log(allSchedules);
-    currentSchedules = allSchedules;
+  if (currentSchedules.length > 0) {
     displaySchedules(currentSchedules);
-  } catch (error) {
-    console.error("Error loading schedules:", error);
-    showError("Failed to load your schedules. Please try again.");
-    showEmptyState();
+  } else {
+    try {
+      // Load both user's own schedules and shared schedules in parallel
+      const ownSchedulesResponse = await authenticatedFetch(
+        `${API_BASE}/get_schedules`
+      );
+
+      let allSchedules = [];
+
+      // Process user's own schedules
+      if (ownSchedulesResponse && ownSchedulesResponse.ok) {
+        const ownResult = await ownSchedulesResponse.json();
+        if (ownResult.success) {
+          const ownSchedules = ownResult.owned_data.map((schedule) => ({
+            ...schedule,
+            isOwner: true,
+            shareType: "owned",
+          }));
+          const sharedSchedules = ownResult.shared_data.map((schedule) => ({
+            ...schedule,
+            isOwner: false,
+            shareType: "shared",
+          }));
+          allSchedules = [...allSchedules, ...ownSchedules, ...sharedSchedules];
+          console.log(ownSchedules);
+          console.log(sharedSchedules);
+        }
+      }
+
+      // Sort schedules by creation date (newest first)
+      allSchedules.sort(
+        (a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0)
+      );
+      currentSchedules = allSchedules;
+      console.log(currentSchedules);
+      displaySchedules(currentSchedules);
+    } catch (error) {
+      console.error("Error loading schedules:", error);
+      showError("Failed to load your schedules. Please try again.");
+      showEmptyState();
+    }
   }
 }
 
@@ -193,11 +278,6 @@ function displaySchedules(schedules) {
         ${
           schedule.shareType === "shared"
             ? '<span class="shared-badge">📤 Shared with you</span>'
-            : schedule.is_public
-            ? '<span class="public-badge">🌐 Public</span>'
-            : schedule.shared_with_emails &&
-              schedule.shared_with_emails.length > 0
-            ? '<span class="private-shared-badge">👥 Shared</span>'
             : '<span class="private-badge">🔒 Private</span>'
         }
       </div>
@@ -263,15 +343,12 @@ function openEditModal(schedule) {
   document.getElementById("budget").value = schedule.budget || "";
   document.getElementById("currency").value = schedule.currency || "VND";
   document.getElementById("tags").value = (schedule.tags || []).join(", ");
-  document.getElementById("isPublic").checked = schedule.is_public || false;
 
   // Set up visibility options
   sharedEmails = schedule.shared_with_emails || [];
   updateEmailList();
 
-  if (schedule.is_public) {
-    document.getElementById("visibilityPublic").checked = true;
-  } else if (sharedEmails.length > 0) {
+  if (sharedEmails.length > 0) {
     document.getElementById("visibilityShared").checked = true;
   } else {
     document.getElementById("visibilityPrivate").checked = true;
@@ -325,9 +402,7 @@ function openEditModal(schedule) {
 
 async function openScheduleDetail(scheduleId) {
   try {
-    const response = await authenticatedFetch(
-      `${API_BASE}/schedules/${scheduleId}`
-    );
+    const response = await fetch(`${API_BASE}/schedules/${scheduleId}`);
 
     if (response && response.ok) {
       const result = await response.json();
@@ -444,9 +519,7 @@ function displayScheduleDetail(schedule, isOwner = true) {
           <div class="detail-item-enhanced">
             <label>Visibility:</label>
             <span>${
-              schedule.is_public
-                ? '<span class="visibility-badge public">Public</span>'
-                : schedule.shared_emails && schedule.shared_emails.length > 0
+              sharedEmails.length > 0
                 ? '<span class="visibility-badge shared">Shared</span>'
                 : '<span class="visibility-badge private">Private</span>'
             }</span>
@@ -640,10 +713,7 @@ async function handleScheduleSubmit(event) {
     days: formattedDays,
   };
 
-  console.log(
-    "📤 Final form data being sent:",
-    JSON.parse(JSON.stringify(formData))
-  );
+  console.log(formData);
 
   try {
     const url = `${API_BASE}/schedules`;
@@ -942,23 +1012,17 @@ function handleVisibilityChange() {
     'input[name="visibility"]:checked'
   ).value;
   const emailSharingSection = document.getElementById("emailSharingSection");
-  const isPublicCheckbox = document.getElementById("isPublic");
 
   if (selectedVisibility === "shared") {
     emailSharingSection.style.display = "block";
-    isPublicCheckbox.checked = false;
   } else {
     emailSharingSection.style.display = "none";
-    isPublicCheckbox.checked = selectedVisibility === "public";
   }
 }
 
 function addEmail() {
   const emailInput = document.getElementById("emailInput");
   const email = emailInput.value.trim();
-
-  console.log("📧 Adding email:", email);
-  console.log("📋 Current sharedEmails before:", sharedEmails);
 
   if (!email) return;
 
@@ -1008,56 +1072,61 @@ function updateEmailList() {
 
 function handleEmailSearch() {
   const emailInput = document.getElementById("emailInput");
-  const query = emailInput.value.trim();
+  const query = emailInput.value.trim().toLowerCase();
 
   if (searchTimeout) {
     clearTimeout(searchTimeout);
   }
 
-  if (query.length < 2) {
+  if (query.length < 1) {
     hideSearchResults();
     return;
   }
 
-  // Show searching indicator
-  showSearchingIndicator();
-
-  searchTimeout = setTimeout(async () => {
-    try {
-      const response = await authenticatedFetch(
-        `${API_BASE}/users/search?q=${encodeURIComponent(query)}&limit=8`
+  searchTimeout = setTimeout(() => {
+    if (
+      typeof user_friendList === "undefined" ||
+      typeof user_friendList.data === "undefined" ||
+      !Array.isArray(user_friendList.data)
+    ) {
+      console.warn(
+        "[Schedule Script] user_friendList.data not populated yet or not an array."
       );
-      if (response && response.ok) {
-        const result = await response.json();
-        if (result.success) {
-          currentSearchResults = result.data;
-          displaySearchResults(currentSearchResults);
-        } else {
-          throw new Error(result.message || "Failed to search users");
-        }
-      } else {
-        throw new Error("Failed to search users");
-      }
-    } catch (error) {
-      console.error("Error searching users:", error);
-      showNoResults("Error searching users");
+      showNoResults(
+        "Friend list is loading or unavailable. Try again shortly."
+      );
+      return;
     }
-  }, 300);
-}
 
-function showSearchingIndicator() {
-  const searchResultsContainer = document.getElementById("userSearchResults");
-  searchResultsContainer.innerHTML =
-    '<div class="searching-users">Searching users...</div>';
-  searchResultsContainer.classList.add("show");
+    if (user_friendList.data.length === 0) {
+      console.log("[Schedule Script] user_friendList.data is empty.");
+      showNoResults("You currently have no friends to share with.");
+      return;
+    }
+
+    // Iterate through user_friendList.data to get friends' emails/usernames!
+    const filteredFriends = user_friendList.data.filter((friend) => {
+      const nameMatch =
+        friend.username && friend.username.toLowerCase().includes(query);
+      const emailMatch =
+        friend.email && friend.email.toLowerCase().includes(query);
+      return nameMatch || emailMatch;
+    });
+
+    if (filteredFriends.length > 0) {
+      displaySearchResults(filteredFriends);
+    } else {
+      showNoResults("No matching friends found for your search.");
+    }
+  }, 300); // 300ms debounce time
 }
 
 function displaySearchResults(users) {
   const searchResultsContainer = document.getElementById("userSearchResults");
   searchResultsContainer.innerHTML = "";
 
-  if (users.length === 0) {
-    showNoResults("No users found");
+  if (!users || users.length === 0) {
+    showNoResults("No matching friends found.");
     return;
   }
 
@@ -1065,31 +1134,62 @@ function displaySearchResults(users) {
     const userItem = document.createElement("div");
     userItem.className = "user-search-item";
 
-    // Create user avatar with initials
     const avatar = document.createElement("div");
     avatar.className = "user-avatar";
-    const name = user.name || user.email;
-    avatar.textContent = name.charAt(0).toUpperCase();
 
-    // Create user info
+    if (user.profilePic) {
+      const img = document.createElement("img");
+      let picUrl = user.profilePic;
+
+      if (!picUrl.startsWith("http") && typeof API_BASE !== "undefined") {
+        const base = API_BASE.endsWith("/api")
+          ? API_BASE.substring(0, API_BASE.length - 4)
+          : API_BASE;
+        picUrl = base + (picUrl.startsWith("/") ? picUrl : "/" + picUrl);
+      } else if (!picUrl.startsWith("http")) {
+        picUrl = "logo/logo-black.png";
+      }
+
+      img.src = picUrl;
+      img.alt = user.username ? user.username.charAt(0).toUpperCase() : "U";
+      img.style.width = "100%";
+      img.style.height = "100%";
+      img.style.objectFit = "cover";
+      img.onerror = () => {
+        avatar.textContent = user.username
+          ? user.username.charAt(0).toUpperCase()
+          : user.email
+          ? user.email.charAt(0).toUpperCase()
+          : "U";
+        img.remove();
+      };
+      avatar.innerHTML = "";
+      avatar.appendChild(img);
+    } else {
+      avatar.textContent = user.username
+        ? user.username.charAt(0).toUpperCase()
+        : user.email
+        ? user.email.charAt(0).toUpperCase()
+        : "U";
+    }
+
     const userInfo = document.createElement("div");
     userInfo.className = "user-info";
 
-    const userName = document.createElement("div");
-    userName.className = "user-name";
-    userName.textContent = user.name || "Unknown User";
+    const userNameDisplay = document.createElement("div");
+    userNameDisplay.className = "user-name";
+    userNameDisplay.textContent = user.username || "Unknown User";
 
-    const userEmail = document.createElement("div");
-    userEmail.className = "user-email";
-    userEmail.textContent = user.email;
+    const userEmailDisplay = document.createElement("div");
+    userEmailDisplay.className = "user-email";
+    userEmailDisplay.textContent = user.email;
 
-    userInfo.appendChild(userName);
-    userInfo.appendChild(userEmail);
+    userInfo.appendChild(userNameDisplay);
+    userInfo.appendChild(userEmailDisplay);
 
     userItem.appendChild(avatar);
     userItem.appendChild(userInfo);
 
-    // Add click handler
     userItem.addEventListener("click", () => {
       selectUser(user);
     });
@@ -1097,7 +1197,9 @@ function displaySearchResults(users) {
     searchResultsContainer.appendChild(userItem);
   });
 
-  searchResultsContainer.classList.add("show");
+  // Explicitly set display to block to ensure visibility
+  searchResultsContainer.style.display = "block";
+  searchResultsContainer.classList.add("show"); // Keep class for other potential styling
 }
 
 function showNoResults(message) {
@@ -1107,6 +1209,7 @@ function showNoResults(message) {
 }
 
 function selectUser(user) {
+  console.log("[Schedule Script] selectUser called with:", user); // Log when selectUser is called
   const emailInput = document.getElementById("emailInput");
   emailInput.value = user.email;
   hideSearchResults();
@@ -1161,7 +1264,7 @@ function generateDailyPlansInterface() {
     .join("");
 
   // Add event listeners for day toggles and activity buttons
-  addDailyPlanEventListeners();
+  // addDailyPlanEventListeners();
 }
 
 function getDaysBetweenDates(startDate, endDate) {
@@ -1327,22 +1430,6 @@ function removeTimePhaseRedesigned(date, phaseIndex) {
     dailyPlans[date].timePhases.splice(phaseIndex, 1);
     refreshDayPlanRedesigned(date);
   }
-}
-
-function updatePhaseNameRedesigned(date, phaseIndex, value) {
-  if (!dailyPlans[date]) {
-    dailyPlans[date] = { timePhases: [] };
-  }
-
-  if (!dailyPlans[date].timePhases[phaseIndex]) {
-    dailyPlans[date].timePhases[phaseIndex] = {
-      name: "",
-      timeRange: "",
-      activities: [],
-    };
-  }
-
-  dailyPlans[date].timePhases[phaseIndex].name = value;
 }
 
 function updatePhaseTimeRedesigned(date, phaseIndex, value) {
@@ -1555,11 +1642,6 @@ function generateDayPlanDetailedHTML(activities) {
     html ||
     '<p class="no-activities-in-phases">No activities found in any time phases for this day.</p>'
   );
-}
-
-function addDailyPlanEventListeners() {
-  // Event listeners are added through onclick attributes in the HTML
-  // This function can be extended for additional event handling if needed
 }
 
 function toggleDayPlanRedesigned(date) {

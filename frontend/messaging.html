@@ -28,8 +28,18 @@
         <a href="contact.html" class="icon phone">
           <img src="logo/phone-icon-white.png" alt="Phone" />
         </a>
-        <a href="contact.html" class="icon email">
+        <a
+          href="contact.html"
+          class="icon email"
+          id="emailNotificationIconContainer"
+        >
           <img src="logo/email-icon-white.png" alt="Email" />
+          <span
+            class="notification-badge"
+            id="friendRequestBadge"
+            style="display: none"
+            >0</span
+          >
         </a>
         <a href="profile.html" class="icon profile">
           <img src="logo/profile-icon-white.png" alt="Profile" />
@@ -53,10 +63,40 @@
         <!-- Chat Sidebar -->
         <div class="chat-sidebar">
           <div class="sidebar-header">
-            <h2>Tin nhắn</h2>
-            <button class="new-chat-btn" onclick="openNewChatModal()">
-              <span>+</span> Cuộc trò chuyện mới
-            </button>
+            <!-- Friend Request Section (appears when there are requests) -->
+            <div
+              id="friendRequestBlock"
+              class="friend-request-section"
+              style="display: none"
+            >
+              <h2>🔔 Yêu cầu kết bạn</h2>
+              <div class="friend-request-list" id="friendRequestList">
+                <!-- Friend requests will appear here -->
+              </div>
+            </div>
+
+            <!-- Add Friend Search Section -->
+            <div class="friend-search-section">
+              <h2>Thêm bạn bè</h2>
+              <input
+                type="text"
+                id="searchFriendInput"
+                placeholder="Tìm kiếm người dùng để thêm bạn..."
+                oninput="searchUsers()"
+              />
+              <div
+                class="friend-search-results-container"
+                id="friendSearchResultsContainer"
+              >
+                <!-- Friend search results will appear here -->
+              </div>
+            </div>
+            <!-- End Add Friend Search Section -->
+
+            <h2 style="margin-top: 10px">Tin nhắn</h2>
+            <!-- <button class="new-chat-btn" onclick="openNewChatModal()"> -->
+            <!-- <span>+</span> Cuộc trò chuyện mới -->
+            <!-- </button> -->
           </div>
 
           <div class="search-container">
@@ -116,9 +156,6 @@
               </div>
               <div class="user-details">
                 <h3 id="conversationUserName">Tên người dùng</h3>
-                <span class="user-status" id="conversationUserStatus"
-                  >Đang hoạt động</span
-                >
               </div>
             </div>
             <div class="conversation-actions">
@@ -162,6 +199,9 @@
               <button class="attachment-btn" onclick="handleAttachment()">
                 📎
               </button>
+              <button class="share-memory-btn" onclick="openShareMemoryModal()">
+                🎁 Share Memory
+              </button>
               <button class="send-btn" onclick="sendMessage()">Gửi</button>
             </div>
           </div>
@@ -200,13 +240,134 @@
       </div>
     </div>
 
+    <!-- Share Memory Modal (Memory Panel) -->
+    <div class="modal" id="shareMemoryModal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3>Share a Memory</h3>
+          <button class="close-btn" onclick="closeShareMemoryModal()">
+            &times;
+          </button>
+        </div>
+        <div class="modal-body">
+          <div class="form-group">
+            <label for="memoryFile">Select memory (image, video, etc.):</label>
+            <input
+              type="file"
+              id="memoryFile"
+              name="memoryFile"
+              accept="image/*,video/*,.pdf,.doc,.docx,.txt"
+            />
+          </div>
+          <div class="form-group search-users-container">
+            <label for="shareWithUserEmail">Share with (enter email):</label>
+            <input
+              type="text"
+              id="shareWithUserEmail"
+              placeholder="Enter user's email..."
+              oninput="searchUsersForSharing()"
+            />
+            <div class="search-instructions">
+              Type the email of the user you want to share with.
+            </div>
+          </div>
+          <div class="users-list" id="shareUserSuggestionList">
+            <!-- User suggestions will appear here -->
+            <div class="loading-message">Enter an email to find users.</div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-primary" onclick="handleShareMemory()">
+            Share Memory
+          </button>
+        </div>
+      </div>
+    </div>
+
     <!-- Loading Overlay -->
     <div class="loading-overlay" id="loadingOverlay" style="display: none">
       <div class="spinner"></div>
       <p>Đang tải...</p>
     </div>
 
+    <!-- Friend Detail Modal (NEW) -->
+    <div class="modal" id="friendDetailModal">
+      <div class="modal-content friend-detail-modal-content">
+        <div class="modal-header">
+          <h3>Thông tin người dùng</h3>
+          <button class="close-btn" onclick="closeFriendDetailModal()">
+            &times;
+          </button>
+        </div>
+        <div class="modal-body friend-detail-modal-body">
+          <div class="friend-detail-avatar-container">
+            <img
+              id="friendDetailAvatar"
+              src="logo/profile-icon-white.png"
+              alt="User Avatar"
+              class="friend-detail-avatar-img"
+            />
+            <div
+              id="friendDetailAvatarInitial"
+              class="friend-detail-avatar-initial"
+              style="display: none"
+            >
+              ?
+            </div>
+          </div>
+          <h4 id="friendDetailUsername">Tên người dùng</h4>
+          <p id="friendDetailEmail" class="friend-detail-email-text">
+            email@example.com
+          </p>
+          <button
+            id="friendDetailAddBtn"
+            class="btn btn-primary add-friend-detail-btn"
+            onclick=""
+          >
+            Thêm bạn bè
+          </button>
+          <p
+            id="friendDetailStatusMsg"
+            class="friend-detail-status"
+            style="display: none"
+          ></p>
+        </div>
+      </div>
+    </div>
+
     <script src="script/accounts.js"></script>
     <script src="script/messaging_script.js?v=2024-profile"></script>
   </body>
 </html>
+
+<!-- Friend Request Panel (Add this at the end of the body) -->
+<div class="friend-request-panel" id="friendRequestPanel">
+  <div class="panel-header">
+    <h3>Friend Requests</h3>
+    <button class="close-panel-btn" id="closeFriendRequestPanelBtn">
+      &times;
+    </button>
+  </div>
+  <div class="panel-body" id="friendRequestListContainer">
+    <!-- Friend requests will be dynamically inserted here -->
+    <!-- Example of a single request item (for styling reference) -->
+    <!-- 
+    <div class="friend-request-item">
+      <div class="request-item-avatar">
+        <img src="logo/profile-icon-white.png" alt="User">
+      </div>
+      <div class="request-item-info">
+        <div class="request-item-name">User Name</div>
+        <div class="request-item-email">user@example.com</div>
+      </div>
+      <div class="request-item-actions">
+        <button class="btn-accept">Accept</button>
+        <button class="btn-decline">Decline</button>
+      </div>
+    </div>
+    -->
+    <div class="loading-message" id="friendRequestPanelLoadingMsg">
+      Loading requests...
+    </div>
+  </div>
+</div>

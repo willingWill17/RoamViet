@@ -1,4 +1,17 @@
 let global_memories;
+const API_BASE_URL = "http://localhost:3053/api";
+let currentUserSelectionFromSuggestion = null; // Holds the user object if selected from suggestions
+let emailsToShareList = []; // Holds the list of user objects or email strings to be shared
+let shareSearchTimeoutInPanel;
+let user_friendList = [];
+
+function escapeHtml(text) {
+  if (text === null || typeof text === "undefined") return "";
+  const div = document.createElement("div");
+  div.textContent = text;
+  return div.innerHTML;
+}
+
 const provinceColors = {
   "An Giang": "#FF6666",
   "Bà Rịa–Vũng Tàu": "#66CC66",
@@ -133,6 +146,7 @@ document.addEventListener("DOMContentLoaded", async function () {
       svgElement.style.margin = "auto";
 
       global_memories = await get_user_memories();
+      user_friendList = await get_user_friendList();
       initializeMap();
     }
   } catch (error) {
@@ -142,7 +156,7 @@ document.addEventListener("DOMContentLoaded", async function () {
 
 async function get_user_memories() {
   const token = localStorage.getItem("idToken");
-  const get_memories_url = `http://localhost:3053/api/memories`;
+  const get_memories_url = `${API_BASE_URL}/memories`;
   const response = await fetch(get_memories_url, {
     method: "GET",
     headers: {
@@ -151,6 +165,22 @@ async function get_user_memories() {
     },
   });
   const data = await response.json();
+  console.log(data);
+  return data;
+}
+
+async function get_user_friendList() {
+  const token = localStorage.getItem("idToken");
+  const get_friendList_url = `${API_BASE_URL}/get_friends`;
+  const response = await fetch(get_friendList_url, {
+    method: "GET",
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
+  });
+  const data = await response.json();
+  console.log(data);
   return data;
 }
 
@@ -437,16 +467,24 @@ function showInfoPanel(provinceInfo) {
   // Add the info panel to the map container
   document.querySelector(".map-info-container").appendChild(infoPanel);
 
-  // Fetch and display user memories for this province
-  fetchProvinceMemories(provinceInfo.name)
-    .then((memories) => {
-      if (memories && memories.length > 0) {
-        displayMemoriesInPanel(memories, infoPanel);
-      }
-    })
-    .catch((error) => {
-      console.error("Error loading memories for province:", error);
-    });
+  // Use global_memories to display memories for this province
+  if (
+    global_memories &&
+    global_memories.data &&
+    Array.isArray(global_memories.data)
+  ) {
+    const provinceSpecificMemories = global_memories.data.filter(
+      (memory) => memory.province === provinceInfo.name
+    );
+
+    if (provinceSpecificMemories.length > 0) {
+      displayMemoriesInPanel(provinceSpecificMemories, infoPanel);
+    }
+  } else {
+    console.warn(
+      "global_memories not available, not an object, or has no data array property for displaying memories."
+    );
+  }
 }
 
 // Function to get province information from database
@@ -471,7 +509,7 @@ async function getProvinceInfo(provinceName) {
     });
   }
 
-  const url = `http://localhost:3053/api/get_province/${encodeURIComponent(
+  const url = `${API_BASE_URL}/get_province/${encodeURIComponent(
     provinceName
   )}`;
   console.log("Fetching province data from:", url);
@@ -535,6 +573,10 @@ function showMemoryPanel(provinceInfo) {
   const memoryPanel = document.createElement("div");
   memoryPanel.className = "memory-registration-panel";
 
+  // Reset sharing-related variables when panel opens
+  currentUserSelectionFromSuggestion = null;
+  emailsToShareList = [];
+
   memoryPanel.innerHTML = `
     <div class="memory-panel-header">
       <h3>Add Memory for ${provinceInfo.name}</h3>
@@ -551,7 +593,18 @@ function showMemoryPanel(provinceInfo) {
           <label for="memoryDescription">Description *</label>
           <textarea id="memoryDescription" name="memoryDescription" required placeholder="Describe your experience..." rows="4"></textarea>
         </div>
-        
+      
+        <div class="form-group">
+          <label for="shareWithUserEmailInput">Share with (optional, type email):</label>
+          <div style="display: flex; gap: 8px; align-items: center;">
+            <input type="text" id="shareWithUserEmailInput" name="shareWithUserEmailInput" placeholder="Enter user's email to get suggestions..." oninput="searchUsersForSharingInPanel()">
+            <button type="button" class="add-share-email-btn" onclick="addEmailToSharedList()">Add</button>
+          </div>
+          <div class="users-list" id="shareUserSuggestionListInPanel" style="display: none; border: 1px solid #ddd; max-height: 150px; overflow-y: auto; margin-top: 5px; background-color: #f9f9f9;">
+          </div>
+          <ul id="sharedEmailList" style="margin-top: 10px; padding-left: 20px;"></ul>
+        </div>
+
         <div class="form-group">
           <label for="memoryPhoto">Photo Upload</label>
           <div class="photo-upload-area">
@@ -581,6 +634,7 @@ function showMemoryPanel(provinceInfo) {
 
   // Set up event listeners for the memory panel
   setupMemoryPanelEventListeners(provinceInfo);
+  renderSharedEmailsList(); // Initial render of the (empty) shared emails list
 }
 
 // Function to set up event listeners for memory panel
@@ -626,8 +680,11 @@ function handlePhotoUpload(event) {
     const previewImage = document.getElementById("previewImage");
 
     previewImage.src = e.target.result;
+    previewImage.style.maxWidth = "100%";
+    previewImage.style.maxHeight = "100%";
+    previewImage.style.objectFit = "contain";
     uploadPlaceholder.style.display = "none";
-    photoPreview.style.display = "block";
+    photoPreview.style.display = "flex";
   };
   reader.readAsDataURL(file);
 }
@@ -639,17 +696,17 @@ function removePhoto() {
   const photoPreview = document.querySelector(".photo-preview");
 
   photoInput.value = "";
-  uploadPlaceholder.style.display = "block";
+  uploadPlaceholder.style.display = "flex";
   photoPreview.style.display = "none";
 }
 
 // Function to handle memory form submission
 function handleMemorySubmission(provinceInfo) {
-  const formData = new FormData();
   const memoryName = document.getElementById("memoryName").value.trim();
   const memoryDescription = document
     .getElementById("memoryDescription")
     .value.trim();
+
   const memoryPhoto = document.getElementById("memoryPhoto").files[0];
 
   // Validation
@@ -665,20 +722,19 @@ function handleMemorySubmission(provinceInfo) {
     return;
   }
 
-  // Prepare data
-  const memoryData = {
-    name: memoryName,
-    description: memoryDescription,
-    province: provinceInfo.name,
-    province_id: provinceInfo.id,
-    created_at: new Date().toISOString(),
-  };
-
-  // Add photo if uploaded
+  // Prepare data using FormData
+  const formData = new FormData();
+  formData.append("memory_name", memoryName);
+  formData.append("description", memoryDescription);
+  formData.append("province", provinceInfo.name);
+  // formData.append("shared_emails", emailsToShareList);
+  formData.append("created_at", new Date().toISOString());
   if (memoryPhoto) {
-    formData.append("photo", memoryPhoto);
+    formData.append("photo", memoryPhoto, memoryPhoto.name);
   }
-  formData.append("memoryData", JSON.stringify(memoryData));
+
+  // Process the emailsToShareList for submission
+  formData.append("shared_emails", emailsToShareList);
 
   // Show loading state
   const saveBtn = document.querySelector(".btn-save");
@@ -691,35 +747,25 @@ function handleMemorySubmission(provinceInfo) {
   if (!token) {
     alert("Please log in to save memories");
     window.location.href = "login.html";
+    // Restore button state
+    saveBtn.textContent = originalText;
+    saveBtn.disabled = false;
     return;
   }
 
   // Make API call to save memory
-  fetch("http://localhost:3053/api/memories", {
+  fetch(`${API_BASE_URL}/memories`, {
     method: "POST",
     headers: {
       Authorization: `Bearer ${token}`,
     },
-    body: formData,
+    body: formData, // Send FormData object
   })
     .then(async (response) => {
       const result = await response.json();
-
-      if (!response.ok) {
-        if (response.status === 401) {
-          // Token expired or invalid
-          alert("Session expired. Please log in again.");
-          window.location.href = "login.html";
-          return;
-        }
-        throw new Error(result.detail || "Failed to save memory");
-      }
-
-      return result;
-    })
-    .then((result) => {
       if (result.success) {
         // Success notification
+        global_memories.data.push(result.data);
         showNotification("Memory saved successfully!", "success");
 
         // Reset form and close panel
@@ -728,25 +774,35 @@ function handleMemorySubmission(provinceInfo) {
         // Refresh the province info panel to show the new memory
         const currentInfoPanel = document.querySelector(".province-info-panel");
         if (currentInfoPanel) {
-          // Re-fetch and display memories for this province
-          fetchProvinceMemories(provinceInfo.name)
-            .then((memories) => {
-              // Remove existing memories section if any
-              const existingMemoriesSection = currentInfoPanel.querySelector(
-                ".user-memories-section"
-              );
-              if (existingMemoriesSection) {
-                existingMemoriesSection.remove();
-              }
+          // Remove existing memories section if any
+          const existingMemoriesSection = currentInfoPanel.querySelector(
+            ".user-memories-section"
+          );
+          if (existingMemoriesSection) {
+            existingMemoriesSection.remove();
+          }
 
-              // Display updated memories
-              if (memories && memories.length > 0) {
-                displayMemoriesInPanel(memories, currentInfoPanel);
-              }
-            })
-            .catch((error) => {
-              console.error("Error refreshing memories:", error);
-            });
+          // Use global_memories to display updated memories for this province
+          if (
+            global_memories &&
+            global_memories.data &&
+            Array.isArray(global_memories.data)
+          ) {
+            const provinceSpecificMemories = global_memories.data.filter(
+              (memory) => memory.province === provinceInfo.name
+            );
+
+            if (provinceSpecificMemories.length > 0) {
+              displayMemoriesInPanel(
+                provinceSpecificMemories,
+                currentInfoPanel
+              );
+            }
+          } else {
+            console.warn(
+              "global_memories not available for refreshing memories in panel."
+            );
+          }
         }
       } else {
         throw new Error(result.message || "Failed to save memory");
@@ -803,47 +859,6 @@ function showNotification(message, type = "info") {
   }, 3000);
 }
 
-// Function to fetch user memories for a province
-function fetchProvinceMemories(provinceName) {
-  const token = localStorage.getItem("idToken");
-  if (!token) {
-    return Promise.resolve([]);
-  }
-
-  const url = `http://localhost:3053/api/memories/province/${encodeURIComponent(
-    provinceName
-  )}`;
-
-  return fetch(url, {
-    method: "GET",
-    headers: {
-      Authorization: `Bearer ${token}`,
-      "Content-Type": "application/json",
-    },
-  })
-    .then((response) => {
-      if (!response.ok) {
-        if (response.status === 401) {
-          // Token expired or invalid, but don't redirect immediately
-          console.warn("Authentication failed while fetching memories");
-          return { success: false, data: [] };
-        }
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      return response.json();
-    })
-    .then((result) => {
-      if (result.success) {
-        return result.data || [];
-      }
-      return [];
-    })
-    .catch((error) => {
-      console.error("Error fetching province memories:", error);
-      return [];
-    });
-}
-
 // Function to display memories in the info panel
 function displayMemoriesInPanel(memories, infoPanel) {
   if (!memories || memories.length === 0) {
@@ -861,7 +876,7 @@ function displayMemoriesInPanel(memories, infoPanel) {
           (memory) => `
         <div class="memory-item">
           <div class="memory-content">
-            <h4>${memory.name}</h4>
+            <h4>${memory.memory_name}</h4>
             <p>${
               memory.description.length > 100
                 ? memory.description.substring(0, 100) + "..."
@@ -887,3 +902,240 @@ function displayMemoriesInPanel(memories, infoPanel) {
   const buttonsContainer = infoPanel.querySelector(".read-more-btn").parentNode;
   buttonsContainer.insertBefore(memoriesSection, buttonsContainer.firstChild);
 }
+
+// -------- START: Functions for User Search In Memory Panel --------
+async function searchUsersForSharingInPanel() {
+  const query = document.getElementById("shareWithUserEmailInput").value.trim();
+  const usersListContainer = document.getElementById(
+    "shareUserSuggestionListInPanel"
+  );
+
+  // Clear previous selection if query changes
+  if (
+    query !==
+    (currentUserSelectionFromSuggestion
+      ? currentUserSelectionFromSuggestion.email
+      : "")
+  ) {
+    currentUserSelectionFromSuggestion = null;
+  }
+
+  if (!query || query.length < 2) {
+    // Start search after 2 characters
+    usersListContainer.innerHTML = "";
+    usersListContainer.style.display = "none";
+    return;
+  }
+
+  usersListContainer.innerHTML =
+    '<div style="padding: 8px; text-align: center; color: #555;">🔍 Searching...</div>';
+  usersListContainer.style.display = "block";
+
+  clearTimeout(shareSearchTimeoutInPanel);
+  renderShareUserResultsInPanel(user_friendList.data);
+}
+
+function renderShareUserResultsInPanel(users) {
+  const usersListContainer = document.getElementById(
+    "shareUserSuggestionListInPanel"
+  );
+  usersListContainer.innerHTML = ""; // Clear previous results or message
+
+  if (users.length === 0) {
+    usersListContainer.innerHTML =
+      '<div style="padding: 8px; text-align: center; color: #555;">No users found.</div>';
+    usersListContainer.style.display = "block"; // Keep it visible to show "No users found"
+    return;
+  }
+
+  users.forEach((user) => {
+    // Prevent adding users to suggestions if they are already in the emailsToShareList by ID
+    if (
+      !emailsToShareList.some(
+        (sharedItem) =>
+          typeof sharedItem === "object" && sharedItem.id === user.id
+      )
+    ) {
+      const userItem = createShareUserElementInPanel(user);
+      usersListContainer.appendChild(userItem);
+    }
+  });
+  if (usersListContainer.children.length === 0 && users.length > 0) {
+    usersListContainer.innerHTML =
+      '<div style="padding: 8px; text-align: center; color: #555;">All matching users already added or selected.</div>';
+  }
+  usersListContainer.style.display =
+    usersListContainer.children.length > 0 ? "block" : "none";
+}
+
+function createShareUserElementInPanel(user) {
+  const div = document.createElement("div");
+  // Basic styling for user item, can be enhanced with CSS classes
+  div.style.padding = "8px 10px";
+  div.style.cursor = "pointer";
+  div.style.borderBottom = "1px solid #eee";
+  div.onmouseover = () => (div.style.backgroundColor = "#f0f0f0");
+  div.onmouseout = () => (div.style.backgroundColor = "#f9f9f9");
+
+  div.onclick = () => selectUserFromSuggestions(user);
+
+  // Using API_BASE_URL for profile picture
+  const avatarSrc = user.profilePic
+    ? `${API_BASE_URL.replace("/api", "")}${user.profilePic}`
+    : null;
+  console.log(user.username);
+  const avatarHTML = avatarSrc
+    ? `<img src="${avatarSrc}" alt="${escapeHtml(
+        user.username || "U"
+      )}" style="width: 30px; height: 30px; border-radius: 50%; object-fit: cover; margin-right: 8px; vertical-align: middle;" onerror="this.style.display='none'; this.nextSibling.style.display='inline-block';" />`
+    : "";
+  const initialHTML = `<span style="display: ${
+    avatarSrc ? "none" : "inline-block"
+  }; width: 30px; height: 30px; border-radius: 50%; background-color: #ccc; color: white; text-align: center; line-height: 30px; font-weight: bold; margin-right: 8px; vertical-align: middle;">${(
+    escapeHtml(user.username) || "U"
+  )
+    .charAt(0)
+    .toUpperCase()}</span>`;
+
+  div.innerHTML = `
+    ${avatarHTML}
+    ${initialHTML}
+    <span style="vertical-align: middle;">
+        <strong style="display: block; font-size: 0.9em;">${escapeHtml(
+          user.username || "Unknown User"
+        )}</strong>
+        <small style="color: #777; font-size: 0.8em;">${escapeHtml(
+          user.email || ""
+        )}</small>
+    </span>`;
+  return div;
+}
+
+function selectUserFromSuggestions(user) {
+  currentUserSelectionFromSuggestion = user;
+  document.getElementById("shareWithUserEmailInput").value = user.email; // Update input with selected user's email
+  document.getElementById("shareUserSuggestionListInPanel").innerHTML = ""; // Clear suggestions
+  document.getElementById("shareUserSuggestionListInPanel").style.display =
+    "none"; // Hide suggestions list
+  console.log(
+    "User selected from suggestions:",
+    currentUserSelectionFromSuggestion
+  );
+}
+
+// -------- START: New/Modified Functions for managing shared emails list --------
+
+function addEmailToSharedList() {
+  const emailInput = document.getElementById("shareWithUserEmailInput");
+  const emailValue = emailInput.value.trim();
+  const suggestionListContainer = document.getElementById(
+    "shareUserSuggestionListInPanel"
+  );
+
+  if (!emailValue) return; // Do nothing if input is empty
+
+  let alreadyExists = false;
+
+  if (
+    currentUserSelectionFromSuggestion &&
+    currentUserSelectionFromSuggestion.email === emailValue
+  ) {
+    // User was selected from suggestions, and input matches that selection
+    if (
+      !emailsToShareList.some(
+        (item) =>
+          typeof item === "object" &&
+          item.id === currentUserSelectionFromSuggestion.id
+      )
+    ) {
+      emailsToShareList.push(currentUserSelectionFromSuggestion.email);
+    } else {
+      alreadyExists = true;
+    }
+  } else {
+    // Manual email input or input changed after suggestion was selected
+    // Basic email validation (can be improved)
+    if (!emailValue.includes("@") || !emailValue.includes(".")) {
+      alert("Please enter a valid email address.");
+      return;
+    }
+    if (
+      !emailsToShareList.some(
+        (item) =>
+          typeof item === "string" &&
+          item.toLowerCase() === emailValue.toLowerCase()
+      )
+    ) {
+      emailsToShareList.push(emailValue);
+    } else {
+      alreadyExists = true;
+    }
+  }
+
+  if (alreadyExists) {
+    console.log("This user/email is already in the share list:", emailValue);
+    // Optionally, notify the user with an alert or a message.
+    // alert("This user/email is already added to the share list.");
+  }
+
+  renderSharedEmailsList();
+  emailInput.value = ""; // Clear the input field
+  currentUserSelectionFromSuggestion = null; // Reset current selection
+  suggestionListContainer.innerHTML = ""; // Clear suggestions
+  suggestionListContainer.style.display = "none"; // Hide suggestions
+  emailInput.focus(); // Set focus back to the input field
+}
+
+function renderSharedEmailsList() {
+  const listElement = document.getElementById("sharedEmailList");
+  if (!listElement) return;
+  listElement.innerHTML = ""; // Clear current list
+
+  if (emailsToShareList.length === 0) {
+    listElement.style.display = "none";
+    return;
+  }
+  listElement.style.display = "block"; // Or "list-item" or other appropriate display type
+
+  emailsToShareList.forEach((item, index) => {
+    const listItem = document.createElement("li");
+    listItem.style.display = "flex";
+    listItem.style.justifyContent = "space-between";
+    listItem.style.alignItems = "center";
+    listItem.style.padding = "5px 0";
+    listItem.style.borderBottom = "1px solid #eee";
+
+    const textSpan = document.createElement("span");
+    if (typeof item === "object" && item.email) {
+      // User object
+      textSpan.textContent = `${escapeHtml(item.name)} (${escapeHtml(
+        item.email
+      )})`;
+    } else {
+      // Email string
+      textSpan.textContent = escapeHtml(item);
+    }
+
+    const removeButton = document.createElement("button");
+    removeButton.innerHTML = "&times;"; // Multiplication sign for 'x'
+    removeButton.style.marginLeft = "10px";
+    removeButton.style.cursor = "pointer";
+    removeButton.style.border = "none";
+    removeButton.style.background = "transparent";
+    removeButton.style.color = "red";
+    removeButton.style.fontSize = "1.2em";
+    removeButton.onclick = () => removeEmailFromSharedList(index);
+
+    listItem.appendChild(textSpan);
+    listItem.appendChild(removeButton);
+    listElement.appendChild(listItem);
+  });
+}
+
+function removeEmailFromSharedList(index) {
+  if (index >= 0 && index < emailsToShareList.length) {
+    emailsToShareList.splice(index, 1);
+    renderSharedEmailsList();
+  }
+}
+// -------- END: New/Modified Functions for managing shared emails list --------
