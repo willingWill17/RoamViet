@@ -11,16 +11,24 @@ document.addEventListener("DOMContentLoaded", async function () {
   // --- End: Added for robust error handling ---
 
   // Load user profile data
+  const token = localStorage.getItem("idToken");
+  if (!token) {
+    window.location.href = "login.html";
+    return;
+  }
   try {
     const response = await authenticatedFetch(
-      "http://localhost:3053/api/profile"
+      "http://localhost:3053/api/profile",
+      {
+        method: "GET",
+      }
     );
     if (response && response.ok) {
       const result = await response.json();
       if (result.success) {
         const user = result.user;
-        document.getElementById("userEmail").textContent = user.email || "N/A";
-        document.getElementById("userId").textContent = user.localId || "N/A";
+        document.getElementById("userEmail").textContent = user.email;
+        document.getElementById("username").textContent = user.username;
         document.getElementById("createdAt").textContent = user.createdAt
           ? new Date(user.createdAt).toLocaleDateString()
           : "N/A";
@@ -37,7 +45,7 @@ document.addEventListener("DOMContentLoaded", async function () {
     console.error("Error loading profile:", error);
     document.getElementById("userEmail").textContent =
       localStorage.getItem("userEmail") || "Error loading";
-    document.getElementById("userId").textContent = "Error loading";
+    document.getElementById("username").textContent = "Error loading";
     document.getElementById("createdAt").textContent = "Error loading";
   }
 
@@ -84,11 +92,25 @@ function setupProfilePictureUpload(originalSrc) {
 
       // Upload the file
       const formData = new FormData();
-      formData.append("profile_picture", file);
+      formData.append("profilePic", file);
+
+      // Debug logging
+      console.log(
+        "Uploading file:",
+        file.name,
+        "Size:",
+        file.size,
+        "Type:",
+        file.type
+      );
+      console.log("FormData contents:");
+      for (let pair of formData.entries()) {
+        console.log(pair[0] + ": " + pair[1]);
+      }
 
       const response = await authenticatedFetch(
         // Assuming authenticatedFetch handles tokens
-        "http://localhost:3053/api/profile/picture",
+        "http://localhost:3053/api/profile",
         {
           method: "POST",
           body: formData,

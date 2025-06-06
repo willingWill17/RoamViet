@@ -162,6 +162,49 @@ async function handleSignUp(event) {
   }
 }
 
+// Handle forgot password form submission
+async function handleForgotPassword(event) {
+  event.preventDefault();
+
+  const email = document.getElementById("email").value;
+  const form = document.querySelector(".login-form");
+  const container = document.querySelector(".login-container");
+
+  try {
+    const response = await fetch(`${AUTH_API_BASE}/forgot-password`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email }),
+    });
+
+    const result = await response.json();
+
+    // Show a confirmation message on the page
+    form.style.display = "none";
+    const confirmationMessage = document.createElement("p");
+    confirmationMessage.textContent =
+      "If an account with that email exists, a password reset link has been sent. Please check your inbox.";
+    confirmationMessage.className = "confirmation-message";
+    container.appendChild(confirmationMessage);
+
+    if (result.success) {
+      console.log("Password reset email sent successfully.");
+    } else {
+      // Log the error for debugging, but don't show specific errors to the user
+      console.error(result.message || "Forgot password failed");
+    }
+  } catch (error) {
+    console.error("Forgot password error:", error);
+
+    // Also display an error message on the page
+    form.style.display = "none";
+    const errorMessage = document.createElement("p");
+    errorMessage.textContent = "Network error. Please try again.";
+    errorMessage.className = "error-message";
+    container.appendChild(errorMessage);
+  }
+}
+
 // Make authenticated API requests
 async function authenticatedFetch(url, options = {}) {
   const idToken = localStorage.getItem("idToken");
@@ -174,8 +217,12 @@ async function authenticatedFetch(url, options = {}) {
   const headers = {
     ...options.headers,
     Authorization: `Bearer ${idToken}`,
-    "Content-Type": "application/json",
   };
+
+  // Only set Content-Type for non-FormData requests
+  if (!(options.body instanceof FormData)) {
+    headers["Content-Type"] = "application/json";
+  }
 
   try {
     const response = await fetch(url, {
