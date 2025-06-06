@@ -27,7 +27,7 @@ body {
 
 /* Navigation styling */
 .main-nav a.current {
-  color: #ffffff;
+  color: #667eea !important;
   text-shadow: 0 0 8px rgba(255, 255, 255, 0.8);
   position: relative;
 }
@@ -1018,3 +1018,179 @@ body {
   color: #c9302c;
 }
 /* === Shared Emails Section Styling - End Third Chunk === */
+
+/* Province Detail Panel Styles */
+.province-detail-panel {
+  position: absolute;
+  right: 20px;
+  top: 20px;
+  width: 500px;
+  max-width: calc(100% - 40px);
+  max-height: calc(100vh - 40px);
+  background-color: rgba(30, 41, 59, 0.95);
+  backdrop-filter: blur(12px);
+  border-radius: 16px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  color: #f8fafc;
+  z-index: 200;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  animation: slideInRight 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.province-detail-panel .memory-panel-header {
+  background-color: rgba(15, 23, 42, 0.8);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 1rem 1.5rem;
+  border-top-left-radius: 16px;
+  border-top-right-radius: 16px;
+}
+
+.province-detail-panel .memory-panel-header h3 {
+  font-size: 1.5rem;
+  color: #e2e8f0;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+}
+
+.province-detail-panel .close-detail-panel {
+  font-size: 2rem;
+  color: #94a3b8;
+  transition: color 0.3s ease, transform 0.3s ease;
+}
+
+.province-detail-panel .close-detail-panel:hover {
+  color: #f8fafc;
+  transform: rotate(90deg);
+}
+
+.province-detail-panel .memory-panel-content {
+  padding: 1.5rem;
+  overflow-y: auto;
+  flex-grow: 1;
+}
+
+.province-detail-panel .memory-panel-content::-webkit-scrollbar {
+  width: 8px;
+}
+
+.province-detail-panel .memory-panel-content::-webkit-scrollbar-track {
+  background: rgba(15, 23, 42, 0.5);
+  border-radius: 4px;
+}
+
+.province-detail-panel .memory-panel-content::-webkit-scrollbar-thumb {
+  background-color: #475569;
+  border-radius: 4px;
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+
+.province-detail-panel .memory-panel-content::-webkit-scrollbar-thumb:hover {
+  background-color: #64748b;
+}
+
+.province-detail-panel .detail-section {
+  margin-bottom: 1.75rem;
+}
+
+.province-detail-panel .detail-section h4 {
+  font-size: 1.1rem;
+  color: #94a3b8;
+  margin-bottom: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border-bottom: 1px solid #334155;
+  padding-bottom: 0.5rem;
+}
+
+.province-detail-panel .detail-section p {
+  color: #cbd5e1;
+  line-height: 1.6;
+}
+
+.tags-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.attraction-tag {
+  background-color: #334155;
+  color: #e2e8f0;
+  padding: 0.35rem 0.75rem;
+  border-radius: 999px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.attraction-tag:hover {
+  background-color: #475569;
+  transform: translateY(-2px);
+}
+
+.destinations-container {
+  display: grid;
+  gap: 1.5rem;
+}
+
+.destination-card {
+  background-color: rgba(15, 23, 42, 0.7);
+  border-radius: 12px;
+  padding: 1.25rem;
+  border: 1px solid #334155;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.destination-card:hover {
+  border-color: #475569;
+  box-shadow: 0 0 15px rgba(71, 85, 105, 0.3);
+}
+
+.destination-card h5 {
+  font-size: 1.25rem;
+  color: #f1f5f9;
+  margin-bottom: 1rem;
+}
+
+.destination-card p {
+  font-size: 0.95rem;
+  color: #cbd5e1;
+  margin-bottom: 0.5rem;
+}
+
+.destination-card p strong {
+  color: #94a3b8;
+}
+
+.destination-images {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+  gap: 0.75rem;
+  margin-top: 1.25rem;
+}
+
+.destination-image {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+  border-radius: 8px;
+  border: 2px solid #334155;
+  transition: transform 0.3s ease, border-color 0.3s ease;
+  cursor: pointer;
+}
+
+.destination-image:hover {
+  transform: scale(1.05);
+  border-color: #64748b;
+}
+
+@media (max-width: 768px) {
+  .province-detail-panel {
+    width: calc(100% - 20px);
+    right: 10px;
+    top: 10px;
+    max-height: calc(100vh - 20px);
+  }
+}

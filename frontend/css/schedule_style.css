@@ -21,7 +21,7 @@ body {
 }
 
 .main-nav a.current {
-  color: #ffffff;
+  color: #667eea !important;
   text-shadow: 0 0 8px rgba(255, 255, 255, 0.8);
   position: relative;
 }

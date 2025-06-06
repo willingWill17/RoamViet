@@ -445,8 +445,9 @@ function showInfoPanel(provinceInfo) {
 
   // Add content to the info panel (without attractions section)
   infoPanel.innerHTML = `
-        <h2>${provinceInfo.name}</h2>
+        <h2>${provinceInfo.province_name}</h2>
         <p>${provinceInfo.description}</p>
+        <p>${provinceInfo.famous_for}</p>
         <button class="read-more-btn">Read more</button>
         <button class="add-memory-btn">Add memory</button>
     `;
@@ -455,7 +456,7 @@ function showInfoPanel(provinceInfo) {
   const readMoreBtn = infoPanel.querySelector(".read-more-btn");
   readMoreBtn.addEventListener("click", function () {
     // Navigate to detailed page about the province
-    window.location.href = `detail.html?id=${provinceInfo.id}`;
+    create_province_detail_Panel(provinceInfo);
   });
 
   const addMemoryBtn = infoPanel.querySelector(".add-memory-btn");
@@ -487,17 +488,102 @@ function showInfoPanel(provinceInfo) {
   }
 }
 
+function create_province_detail_Panel(provinceInfo) {
+  const existingPanel = document.querySelector(".province-detail-panel");
+  if (existingPanel) {
+    existingPanel.remove();
+  }
+
+  const detailPanel = document.createElement("div");
+  detailPanel.className = "province-detail-panel memory-registration-panel";
+
+  const provinceName = provinceInfo.province_name || provinceInfo.name;
+  const famousPlaces = provinceInfo.famous_for || [];
+  const destinations = provinceInfo.destinations || [];
+
+  const createTagsHTML = (list) => {
+    if (!Array.isArray(list) || list.length === 0) return "";
+    return list
+      .map((item) => `<span class="attraction-tag">${item}</span>`)
+      .join("");
+  };
+
+  const createDestinationsHTML = (destinations) => {
+    if (!Array.isArray(destinations) || destinations.length === 0) return "";
+
+    return destinations
+      .map((dest) => {
+        const imagesHTML = (dest.location_images || [])
+          .map(
+            (img) =>
+              `<img src="${img}" alt="${dest.location_name}" class="destination-image" />`
+          )
+          .join("");
+
+        return `
+          <div class="destination-card">
+            <h5>${dest.location_name}</h5>
+            <p><strong>Type:</strong> ${dest.location_type}</p>
+            <p><strong>Description:</strong> ${dest.location_description}</p>
+            <p><strong>Open Time:</strong> ${dest.location_open_time}</p>
+            <p><strong>Address:</strong> ${dest.location_address}</p>
+            <div class="destination-images">${imagesHTML}</div>
+          </div>
+        `;
+      })
+      .join("");
+  };
+
+  const famousPlacesHTML = createTagsHTML(famousPlaces);
+  const destinationsHTML = createDestinationsHTML(destinations);
+
+  detailPanel.innerHTML = `
+    <div class="memory-panel-header">
+      <h3>${provinceName}</h3>
+      <button class="close-detail-panel">&times;</button>
+    </div>
+    <div class="memory-panel-content">
+      <div class="detail-section">
+        <h4>Description</h4>
+        <p>${provinceInfo.description || "No description available."}</p>
+      </div>
+      ${
+        famousPlaces.length > 0
+          ? `
+        <div class="detail-section">
+          <h4>Famous For</h4>
+          <div class="tags-container">${famousPlacesHTML}</div>
+        </div>`
+          : ""
+      }
+      ${
+        destinations.length > 0
+          ? `
+        <div class="detail-section">
+          <h4>Attractions</h4>
+          <div class="destinations-container">${destinationsHTML}</div>
+        </div>`
+          : ""
+      }
+      <div class="detail-section">
+        <h4>Region</h4>
+        <p>${provinceInfo.region || "N/A"}</p>
+      </div>
+    </div>
+  `;
+
+  document.querySelector(".map-info-container").appendChild(detailPanel);
+
+  const closeBtn = detailPanel.querySelector(".close-detail-panel");
+  closeBtn.addEventListener("click", () => {
+    detailPanel.style.animation = "fadeOut 0.3s ease-in-out";
+    setTimeout(() => {
+      detailPanel.remove();
+    }, 300);
+  });
+}
 // Function to get province information from database
 async function getProvinceInfo(provinceName) {
-  // console.log(global_memories, typeof global_memories);
-  // const result = [];
-  // for (let i = 0; i < global_memories.data.length; i++) {
-  // if (global_memories.data[i].province === provinceName) {
-  // result.push(global_memories.data[i]);
-  // }
-  // }
-  // console.log(result);
-  // return result;
   const token = localStorage.getItem("idToken");
   if (!token) {
     console.error("No authentication token found");
