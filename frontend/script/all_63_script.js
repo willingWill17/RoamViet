@@ -257,6 +257,7 @@ function initializeMap() {
 
 // Update the setupSearch function to handle groups correctly:
 function setupSearch(provinces, onProvinceFound) {
+  console.log(provinces);
   const searchBar = document.querySelector(".search-bar");
   if (!searchBar) return;
 
@@ -282,7 +283,7 @@ function setupSearch(provinces, onProvinceFound) {
 
     // Highlight matching provinces
     provinces.forEach((province) => {
-      const provinceName = province.getAttribute("data-name") || "";
+      const provinceName = province.getAttribute("title") || "";
 
       if (provinceName.toLowerCase().includes(searchTerm)) {
         // Don't change selected province color
@@ -320,7 +321,7 @@ function setupSearch(provinces, onProvinceFound) {
 
       // Find first matching province
       for (const province of provinces) {
-        const provinceName = province.getAttribute("data-name") || "";
+        const provinceName = province.getAttribute("title") || "";
         if (provinceName.toLowerCase().includes(searchTerm)) {
           // Call the callback function with found province
           onProvinceFound(province);
