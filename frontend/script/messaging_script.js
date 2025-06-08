@@ -6,7 +6,7 @@ let currentMessages = [];
 let messagePollingInterval = null;
 let friend_requests = [];
 let user_friendList = [];
-
+let all_users = [];
 const API_BASE_URL = "http://localhost:3053/api";
 
 // Simple authentication check
@@ -32,16 +32,6 @@ function checkAuth() {
 document.addEventListener("DOMContentLoaded", function () {
   initializeMessaging();
 });
-
-async function get_friend_requests() {
-  const token =
-    localStorage.getItem("idToken") || sessionStorage.getItem("idToken");
-  const response = await fetch(`${API_BASE_URL}/friend_requests`, {
-    headers: { Authorization: `Bearer ${token}` },
-  });
-  friend_requests = await response.json();
-  return friend_requests;
-}
 
 async function initializeMessaging() {
   try {
@@ -72,12 +62,12 @@ async function initializeMessaging() {
       window.location.href = "login.html";
       return;
     }
-
-    await get_friend_requests();
-    user_friendList = await get_user_friendList();
+    // Get user's friends list and requests
+    await get_user_friendList_and_requests();
+    await get_all_users();
     // Load conversations
-    if (friend_requests.data.length > 0) {
-      console.log(friend_requests.data);
+    if (friend_requests.length > 0) {
+      // console.log(friend_requests);
       await makeFriendRequestBlock();
     }
     await loadConversations();
@@ -93,15 +83,32 @@ async function initializeMessaging() {
   }
 }
 
-async function get_user_friendList() {
+async function get_all_users() {
   const token =
     localStorage.getItem("idToken") || sessionStorage.getItem("idToken");
-  const response = await fetch(`${API_BASE_URL}/get_friends`, {
+  const response = await fetch(`${API_BASE_URL}/users`, {
     headers: { Authorization: `Bearer ${token}` },
   });
-  user_friendList = await response.json();
-  if (user_friendList.success) {
-    return user_friendList.data;
+  const data = await response.json();
+  if (data.success) {
+    all_users = data.data;
+  } else {
+    console.log("❌ Failed to get all users");
+  }
+}
+
+async function get_user_friendList_and_requests() {
+  const token =
+    localStorage.getItem("idToken") || sessionStorage.getItem("idToken");
+  const response = await fetch(`${API_BASE_URL}/friend_requests`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  const data = await response.json();
+  if (data.success) {
+    user_friendList = data.friends;
+    friend_requests = data.pending;
+    console.log(user_friendList);
+    console.log(friend_requests);
   } else {
     console.log("❌ Failed to get user friend list");
     return [];
@@ -117,7 +124,7 @@ async function makeFriendRequestBlock() {
   friendRequestList.innerHTML = "";
 
   // Add each friend request to the list
-  friend_requests.data.forEach((request) => {
+  friend_requests.forEach((request) => {
     console.log("Processing friend request:", request);
     const requestElement = createFriendRequestElement(request);
     friendRequestList.appendChild(requestElement);
@@ -660,7 +667,7 @@ async function searchUsers() {
     '<div class="loading-message">🔍 Đang tìm kiếm...</div>';
 
   // Debounce search
-  renderSearchResults(user_friendList, query);
+  renderSearchResults(all_users, query);
 }
 
 function renderSearchResults(users, query) {
