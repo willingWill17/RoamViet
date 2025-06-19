@@ -1,0 +1,10 @@
+fastapi==0.95.1
+uvicorn==0.22.0
+pydantic==1.10.7
+firebase-admin==6.1.0
+mysql-connector-python==8.0.33
+pymysql==1.0.3
+bcrypt==4.0.1 
+python-dotenv==1.0.0
+requests==2.31.0
+google-cloud-firestore==2.11.1 
