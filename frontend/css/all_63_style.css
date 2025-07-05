@@ -206,13 +206,20 @@ body {
 
 /* Make the map container responsive */
 @media screen and (max-width: 768px) {
+  .content {
+    width: 95%;
+    margin: 5px auto 0;
+  }
+
   .map-info-container {
     flex-direction: column;
     height: auto;
+    margin-top: 10px;
   }
 
   .map-container {
     height: 50vh;
+    min-height: 400px;
   }
 
   .province-info-panel {
@@ -221,6 +228,24 @@ body {
     right: 0 !important;
     top: 0 !important;
     margin-top: 20px;
+    padding: 20px;
+  }
+
+  .province-info-panel h2 {
+    font-size: 22px;
+  }
+
+  .province-info-panel p {
+    font-size: 14px;
+    line-height: 1.5;
+  }
+
+  .province-attractions h3 {
+    font-size: 16px;
+  }
+
+  .province-attractions li {
+    font-size: 14px;
   }
 
   .reset-map-button {
@@ -228,6 +253,133 @@ body {
     left: 10px;
     padding: 6px 12px;
     font-size: 14px;
+  }
+
+  .search-bar {
+    font-size: 14px;
+    padding: 10px 15px;
+  }
+
+  .add-memory-btn {
+    font-size: 12px;
+    padding: 8px 16px;
+  }
+
+  .read-more-btn {
+    font-size: 12px;
+    padding: 6px 12px;
+  }
+
+  .view-memory-btn {
+    font-size: 12px;
+    padding: 6px 12px;
+  }
+
+  .province-actions {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .province-actions button {
+    width: 100%;
+    margin: 0;
+  }
+
+  .user-memories-section {
+    margin-top: 15px;
+  }
+
+  .user-memories-section h3 {
+    font-size: 16px;
+  }
+
+  .memory-item {
+    padding: 10px;
+    margin-bottom: 8px;
+  }
+
+  .memory-content h4 {
+    font-size: 14px;
+  }
+
+  .memory-content p {
+    font-size: 12px;
+  }
+
+  .memory-content small {
+    font-size: 10px;
+  }
+
+  .memory-photo {
+    width: 60px;
+    height: 60px;
+  }
+}
+
+/* Mobile - Small Screens */
+@media screen and (max-width: 480px) {
+  .content {
+    width: 98%;
+    margin: 2px auto 0;
+  }
+
+  .map-container {
+    height: 45vh;
+    min-height: 300px;
+  }
+
+  .province-info-panel {
+    padding: 15px;
+  }
+
+  .province-info-panel h2 {
+    font-size: 20px;
+  }
+
+  .province-info-panel p {
+    font-size: 13px;
+  }
+
+  .province-attractions h3 {
+    font-size: 15px;
+  }
+
+  .province-attractions li {
+    font-size: 13px;
+  }
+
+  .reset-map-button {
+    font-size: 12px;
+    padding: 5px 10px;
+  }
+
+  .search-bar {
+    font-size: 13px;
+    padding: 8px 12px;
+  }
+
+  .add-memory-btn,
+  .read-more-btn,
+  .view-memory-btn {
+    font-size: 11px;
+    padding: 5px 10px;
+  }
+
+  .memory-item {
+    padding: 8px;
+  }
+
+  .memory-content h4 {
+    font-size: 13px;
+  }
+
+  .memory-content p {
+    font-size: 11px;
+  }
+
+  .memory-photo {
+    width: 50px;
+    height: 50px;
   }
 }
 
@@ -539,12 +691,47 @@ body {
 
   .memory-panel-header {
     border-radius: 0 !important;
+    padding: 15px;
+  }
+
+  .memory-panel-header h3 {
+    font-size: 16px;
   }
 
   .memory-panel-content {
     padding: 20px;
     height: calc(100vh - 80px);
     overflow-y: auto;
+  }
+
+  .memory-form label {
+    font-size: 13px;
+  }
+
+  .memory-form input[type="text"],
+  .memory-form textarea {
+    font-size: 14px;
+    padding: 10px;
+  }
+
+  .memory-form textarea {
+    min-height: 80px;
+  }
+
+  .upload-placeholder {
+    padding: 20px;
+  }
+
+  .upload-placeholder p {
+    font-size: 14px;
+  }
+
+  .upload-hint {
+    font-size: 12px;
+  }
+
+  .photo-preview {
+    height: 120px;
   }
 
   .form-actions {
@@ -554,6 +741,66 @@ body {
     margin: 0 -20px -20px -20px;
     padding: 20px;
     border-top: 2px solid #e0e0e0;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .form-actions button {
+    width: 100%;
+    padding: 12px;
+    font-size: 14px;
+  }
+}
+
+/* Mobile - Small Screens for memory panel */
+@media screen and (max-width: 480px) {
+  .memory-panel-header {
+    padding: 12px;
+  }
+
+  .memory-panel-header h3 {
+    font-size: 15px;
+  }
+
+  .memory-panel-content {
+    padding: 15px;
+    height: calc(100vh - 60px);
+  }
+
+  .memory-form label {
+    font-size: 12px;
+  }
+
+  .memory-form input[type="text"],
+  .memory-form textarea {
+    font-size: 13px;
+    padding: 8px;
+  }
+
+  .upload-placeholder {
+    padding: 15px;
+  }
+
+  .upload-placeholder p {
+    font-size: 13px;
+  }
+
+  .upload-hint {
+    font-size: 11px;
+  }
+
+  .photo-preview {
+    height: 100px;
+  }
+
+  .form-actions {
+    margin: 0 -15px -15px -15px;
+    padding: 15px;
+  }
+
+  .form-actions button {
+    padding: 10px;
+    font-size: 13px;
   }
 }
 

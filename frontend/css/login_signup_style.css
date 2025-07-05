@@ -101,6 +101,13 @@ body {
   text-decoration: underline;
 }
 
+/* Change Password Link Styles */
+.change-password {
+  text-align: center;
+  margin-top: 15px;
+  color: #333;
+}
+
 /* Signup Page Styles */
 .signup-container {
   background-color: rgba(255, 255, 255, 0.2);
@@ -245,51 +252,231 @@ body {
   .container {
     flex-direction: column;
     height: auto;
+    align-items: center;
+    gap: 30px;
   }
 
   .login-container {
-    margin-bottom: 50px;
-    width: 80%;
-    max-width: 350px;
+    width: 90%;
+    max-width: 400px;
+    margin: 0;
+  }
+
+  .signup-container {
+    width: 90%;
+    max-width: 450px;
+    position: relative;
+    top: auto;
+    left: auto;
+    transform: none;
   }
 
   .photos-container {
     width: 100%;
-    height: 400px;
-    margin-bottom: 30px;
+    height: 350px;
+    max-width: 500px;
   }
 
   .polaroid img {
-    width: 200px;
-    height: 240px;
+    width: 180px;
+    height: 220px;
+  }
+}
+
+@media (max-width: 768px) {
+  .title {
+    font-size: 2.8rem;
+    margin-top: 3vh;
   }
 
+  .title img {
+    height: 40px !important;
+  }
+
+  .container {
+    width: 95%;
+    margin-top: 3vh;
+    gap: 20px;
+  }
+
+  .login-container,
   .signup-container {
-    width: 80%;
+    width: 95%;
+    max-width: 380px;
+    padding: 25px;
+  }
+
+  .login-title,
+  .signup-title {
+    font-size: 1.6rem;
+    margin-bottom: 18px;
+  }
+
+  .login-form input[type="text"],
+  .login-form input[type="password"],
+  .login-form input[type="email"],
+  .signup-form input[type="text"],
+  .signup-form input[type="email"],
+  .signup-form input[type="password"] {
+    padding: 10px;
+    font-size: 0.9rem;
+    margin: 8px 0;
+  }
+
+  .login-btn,
+  .signup-btn {
+    padding: 10px;
+    font-size: 0.9rem;
+  }
+
+  .signup-text,
+  .login-text,
+  .change-password {
+    font-size: 0.9rem;
+    margin-top: 15px;
+  }
+
+  .photos-container {
+    height: 280px;
     max-width: 400px;
+  }
+
+  .polaroid {
+    padding: 12px 12px 30px 12px;
+  }
+
+  .polaroid img {
+    width: 140px;
+    height: 170px;
+  }
+
+  .polaroid:nth-child(1) {
+    left: 2%;
+    top: 25%;
+  }
+
+  .polaroid:nth-child(2) {
+    left: 32%;
+    top: 8%;
+  }
+
+  .polaroid:nth-child(3) {
+    left: 62%;
+    top: 25%;
   }
 }
 
 @media (max-width: 576px) {
   .title {
-    font-size: 3rem;
+    font-size: 2.2rem;
+    margin-top: 2vh;
+  }
+
+  .title img {
+    height: 35px !important;
+    margin-right: 8px !important;
+  }
+
+  .container {
+    width: 98%;
+    margin-top: 2vh;
+    gap: 15px;
+  }
+
+  .login-container,
+  .signup-container {
+    width: 98%;
+    max-width: 340px;
+    padding: 20px;
+  }
+
+  .login-title,
+  .signup-title {
+    font-size: 1.4rem;
+    margin-bottom: 15px;
+  }
+
+  .login-form input[type="text"],
+  .login-form input[type="password"],
+  .login-form input[type="email"],
+  .signup-form input[type="text"],
+  .signup-form input[type="email"],
+  .signup-form input[type="password"] {
+    padding: 8px;
+    font-size: 0.85rem;
+    margin: 6px 0;
+  }
+
+  .login-btn,
+  .signup-btn {
+    padding: 8px;
+    font-size: 0.85rem;
+  }
+
+  .signup-text,
+  .login-text,
+  .change-password {
+    font-size: 0.8rem;
+    margin-top: 12px;
   }
 
   .photos-container {
-    height: 320px;
+    height: 220px;
+    max-width: 300px;
+  }
+
+  .polaroid {
+    padding: 8px 8px 20px 8px;
   }
 
   .polaroid img {
-    width: 150px;
-    height: 180px;
+    width: 100px;
+    height: 120px;
+  }
+
+  .polaroid:nth-child(1) {
+    left: 0%;
+    top: 30%;
+  }
+
+  .polaroid:nth-child(2) {
+    left: 35%;
+    top: 10%;
+  }
+
+  .polaroid:nth-child(3) {
+    left: 70%;
+    top: 30%;
+  }
+
+  .confirmation-message,
+  .error-message {
+    font-size: 0.85rem;
   }
 }
 
-@media (max-width: 992px) {
-  /* Các style khác... */
+/* Mobile - Very Small Screens */
+@media (max-width: 400px) {
+  .title {
+    font-size: 1.8rem;
+  }
 
-  /* Ẩn phần polaroid khi màn hình nhỏ hơn 992px */
+  .login-container,
+  .signup-container {
+    padding: 15px;
+  }
+
   .photos-container {
-    display: none;
+    height: 180px;
+    max-width: 250px;
+  }
+
+  .polaroid img {
+    width: 70px;
+    height: 85px;
+  }
+
+  .polaroid {
+    padding: 6px 6px 15px 6px;
   }
 }

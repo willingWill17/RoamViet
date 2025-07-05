@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Query, Request, HTTPException, Depends, Form, UploadFile, File
+from fastapi import FastAPI, Query, Request, HTTPException, Depends, Form, UploadFile, File, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from fastapi.staticfiles import StaticFiles
@@ -34,6 +34,32 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+class ConnectionManager:
+    def __init__(self):
+        self.active_connections: Dict[str, List[WebSocket]] = {}
+
+    async def connect(self, websocket: WebSocket, conversation_id: str):
+        await websocket.accept()
+        if conversation_id not in self.active_connections:
+            self.active_connections[conversation_id] = []
+        self.active_connections[conversation_id].append(websocket)
+
+    def disconnect(self, websocket: WebSocket, conversation_id: str):
+        if conversation_id in self.active_connections:
+            self.active_connections[conversation_id].remove(websocket)
+            if not self.active_connections[conversation_id]:
+                del self.active_connections[conversation_id]
+
+    async def send_personal_message(self, message: str, websocket: WebSocket):
+        await websocket.send_text(message)
+
+    async def broadcast(self, message: str, conversation_id: str):
+        if conversation_id in self.active_connections:
+            for connection in self.active_connections[conversation_id]:
+                await connection.send_text(message)
+
+manager = ConnectionManager()
 
 def verify_firebase_token(credentials: HTTPAuthorizationCredentials = Depends(security)):
     """Dependency to verify Firebase token"""
@@ -168,16 +194,16 @@ async def forgot_password(payload: ForgotPasswordPayload):
 @app.get("/api/profile")
 def get_profile_info(user=Depends(verify_firebase_token)):
     """Get user profile information"""
-    print("🔍 DEBUG: GET profile info request")
-    idk = FirebaseService.get_user_by_email(user["email"])
+    user_id = get_user_id_from_token(user)
+    user_profile = FirebaseService.get_user_by_id(user_id)
+    
+    if not user_profile:
+        raise HTTPException(status_code=404, detail="User profile not found")
+
     return {
         "message": "Profile retrieved successfully",
         "success": True,
-        "user": {
-            'localId': user["localId"],
-            'username': idk["username"],
-            'email': user["email"]
-        }
+        "user": user_profile
     }
 
 @app.post("/api/profile")
@@ -636,16 +662,113 @@ async def serve_uploaded_file(file_type: str, filename: str):
 
 # =============== MESSAGING ENDPOINTS ===============
 
+@app.websocket("/ws/conversations/{conversation_id}")
+async def websocket_endpoint(
+    websocket: WebSocket, 
+    conversation_id: str, 
+    token: str = Query(...)
+):
+    """Handle WebSocket connections for real-time messaging"""
+    user_id = None # Initialize user_id to ensure it's available in finally block
+    try:
+        # 1. Authenticate user
+        result = verify_token(token)
+        if not result.get("success"):
+            await websocket.close(code=4001) # Custom code for auth failure
+            return
+
+        user_data = result["user"]
+        user_id = get_user_id_from_token(user_data)
+        
+        # 2. Authorize user for the conversation
+        conversations = FirebaseService.get_conversations(user_id)
+        conversation_ids = [conv['id'] for conv in conversations if 'id' in conv]
+        
+        if conversation_id not in conversation_ids:
+            await websocket.close(code=4003) # Custom code for forbidden access
+            return
+            
+        # 3. Connect user to the conversation
+        await manager.connect(websocket, conversation_id)
+        
+        # Announce user has joined
+        user_info = FirebaseService.get_user_by_id(user_id)
+        if user_info:
+            join_message = {
+                "type": "status",
+                "message": f"User {user_info.get('username', 'Anonymous')} has joined the chat."
+            }
+            await manager.broadcast(json.dumps(join_message), conversation_id)
+
+        # 4. Listen for incoming messages
+        while True:
+            content = await websocket.receive_text()
+            
+            message_id = FirebaseService.send_message(conversation_id, user_id, content)
+            
+            if message_id:
+                response_message = {
+                    "id": message_id,
+                    "sender_id": user_id,
+                    "conversation_id": conversation_id,
+                    "sender_name": user_info.get("username", "Unknown"),
+                    "content": content,
+                    "timestamp": datetime.now().isoformat()
+                }
+                await manager.broadcast(json.dumps(response_message), conversation_id)
+            else:
+                error_message = {"type": "error", "message": "Failed to send message."}
+                await websocket.send_text(json.dumps(error_message))
+
+    except WebSocketDisconnect:
+        # This block is entered when the client disconnects gracefully.
+        pass
+    except Exception as e:
+        # Log unexpected errors
+        print(f"💥 WebSocket Error: {e}")
+    finally:
+        # 5. Handle disconnection
+        manager.disconnect(websocket, conversation_id)
+        
+        # Announce user has left
+        if user_id:
+            user_info = FirebaseService.get_user_by_id(user_id)
+            if user_info:
+                leave_message = {
+                    "type": "status",
+                    "message": f"User {user_info.get('username', 'Anonymous')} has left the chat."
+                }
+                await manager.broadcast(json.dumps(leave_message), conversation_id)
+
 @app.get("/api/conversations")
 async def get_conversations(user=Depends(verify_firebase_token)):
     """Get all conversations for the current user"""
     try:
         user_id = get_user_id_from_token(user)
-        conversations = FirebaseService.get_conversations(user_id)
+        conversations_from_db = FirebaseService.get_conversations(user_id)
         
+        # Transform the data to match the new frontend expectations
+        transformed_conversations = []
+        for conv in conversations_from_db:
+            # Get current user's full profile to be a participant
+            current_user_profile = FirebaseService.get_user_by_id(user_id)
+            
+            # The other participant is already fetched as 'other_user_info'
+            other_user_profile = conv.get('other_user_info')
+            
+            # Create the participants list
+            participants = []
+            if current_user_profile:
+                participants.append(current_user_profile)
+            if other_user_profile:
+                participants.append(other_user_profile)
+                
+            conv['participants'] = participants
+            transformed_conversations.append(conv)
+            
         return {
             "success": True,
-            "data": conversations,
+            "data": transformed_conversations,
             "message": "Conversations retrieved successfully"
         }
     except Exception as e:
@@ -707,40 +830,6 @@ async def get_messages(
         raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error retrieving messages: {str(e)}")
-
-@app.post("/api/conversations/{conversation_id}/messages")
-async def send_message(conversation_id: str, request: Request, user=Depends(verify_firebase_token)):
-    """Send a message to a conversation"""
-    try:
-        user_id = get_user_id_from_token(user)
-        
-        # Verify user is part of this conversation
-        conversations = FirebaseService.get_conversations(user_id)
-        conversation_ids = [conv['id'] for conv in conversations]
-        
-        if conversation_id not in conversation_ids:
-            raise HTTPException(status_code=403, detail="Access denied to this conversation")
-        
-        data = await request.json()
-        content = data.get('content')
-        
-        if not content:
-            raise HTTPException(status_code=400, detail="Message content is required")
-        
-        message_id = FirebaseService.send_message(conversation_id, user_id, content)
-        
-        if message_id:
-            return {
-                "success": True,
-                "message_id": message_id,
-                "message": "Message sent successfully"
-            }
-        else:
-            raise HTTPException(status_code=500, detail="Failed to send message")
-    except HTTPException:
-        raise
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error sending message: {str(e)}")
 
 # =============== FRIEND REQUEST ENDPOINTS ===============
 

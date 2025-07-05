@@ -298,6 +298,7 @@ body {
 @media (max-width: 768px) {
   .schedule-container {
     flex-direction: column;
+    gap: 10px;
   }
 
   .location-panel,
@@ -309,6 +310,188 @@ body {
   .content {
     margin-top: 60px; /* Slightly smaller margin on mobile */
     width: 95%; /* Wider on mobile */
+    padding: 10px;
+  }
+
+  /* Mobile Schedule Header */
+  .schedule-header {
+    flex-direction: column;
+    gap: 15px;
+    text-align: center;
+  }
+
+  .schedule-header h1 {
+    font-size: 24px;
+    margin: 0;
+  }
+
+  .create-btn {
+    width: 100%;
+    padding: 12px;
+    font-size: 16px;
+  }
+
+  /* Mobile Schedule Grid */
+  .schedules-grid {
+    grid-template-columns: 1fr;
+    gap: 15px;
+  }
+
+  .schedule-card {
+    padding: 15px;
+  }
+
+  .schedule-card h3 {
+    font-size: 18px;
+  }
+
+  /* Mobile Modal */
+  .modal-content {
+    width: 95%;
+    max-width: 500px;
+    margin: 20px auto;
+    max-height: 90vh;
+    overflow-y: auto;
+  }
+
+  .form-row {
+    flex-direction: column;
+  }
+
+  .form-row .form-group {
+    width: 100%;
+  }
+
+  /* Mobile Calendar */
+  .calendar-controls {
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .month-display {
+    font-size: 14px;
+  }
+
+  .days div {
+    font-size: 0.8rem;
+    padding: 4px 0;
+  }
+
+  /* Mobile Action Buttons */
+  .action-buttons {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .control-btn {
+    width: 100%;
+    padding: 10px;
+    font-size: 14px;
+    height: auto;
+    border-radius: 8px;
+  }
+
+  /* Mobile Itinerary */
+  .itinerary-content {
+    padding: 10px;
+    min-height: 200px;
+  }
+
+  .empty-itinerary-message {
+    font-size: 0.8rem;
+    padding: 20px;
+  }
+
+  .date-range {
+    flex-direction: column;
+    gap: 8px;
+    font-size: 0.8rem;
+  }
+
+  .province-selector {
+    margin-bottom: 8px;
+  }
+
+  .selected-province {
+    font-size: 16px;
+  }
+}
+
+/* Mobile - Small Screens */
+@media (max-width: 480px) {
+  .content {
+    padding: 5px;
+    margin-top: 40px;
+  }
+
+  .schedule-header h1 {
+    font-size: 20px;
+  }
+
+  .create-btn {
+    font-size: 14px;
+    padding: 10px;
+  }
+
+  .location-panel,
+  .itinerary-panel {
+    padding: 10px;
+  }
+
+  .location-header h2,
+  .calendar-section h2,
+  .itinerary-panel h2 {
+    font-size: 16px;
+  }
+
+  .province-dropdown {
+    font-size: 12px;
+    padding: 6px;
+  }
+
+  .selected-province {
+    font-size: 14px;
+  }
+
+  .modal-content {
+    width: 98%;
+    margin: 10px auto;
+  }
+
+  .modal-header h2 {
+    font-size: 18px;
+  }
+
+  .form-group label {
+    font-size: 14px;
+  }
+
+  .form-group input,
+  .form-group select,
+  .form-group textarea {
+    font-size: 14px;
+    padding: 8px;
+  }
+
+  .days div {
+    font-size: 0.7rem;
+    padding: 2px 0;
+  }
+
+  .weekdays div {
+    font-size: 0.7rem;
+    padding: 2px;
+  }
+
+  .month-nav-btn {
+    width: 22px;
+    height: 22px;
+    font-size: 14px;
+  }
+
+  .date-range {
+    font-size: 0.7rem;
+    padding: 8px;
   }
 }
 

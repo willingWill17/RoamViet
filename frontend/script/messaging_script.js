@@ -3,7 +3,7 @@ let currentConversation = null;
 let currentUser = null;
 let conversations = [];
 let currentMessages = [];
-let messagePollingInterval = null;
+let websocket = null;
 let friend_requests = [];
 let user_friendList = [];
 let all_users = [];
@@ -197,6 +197,7 @@ function renderConversations() {
 }
 
 function createConversationElement(conversation) {
+  console.log(conversation);
   const div = document.createElement("div");
   div.className = "conversation-item";
   div.onclick = () => selectConversation(conversation);
@@ -205,7 +206,7 @@ function createConversationElement(conversation) {
   const otherParticipant = getOtherParticipant(conversation);
   const unreadCount =
     conversation.unread_count?.[currentUser?.localId || currentUser?.uid] || 0;
-
+  console.log(otherParticipant);
   const avatarSrc = otherParticipant.profilePic
     ? `${API_BASE_URL.replace("/api", "")}${otherParticipant.profilePic}`
     : "logo/profile-icon-white.png";
@@ -213,11 +214,13 @@ function createConversationElement(conversation) {
   div.innerHTML = `
         <div class="user-avatar">
             <img src="${avatarSrc}" alt="${
-    otherParticipant.name
+    conversation.other_user_info.profilePic
   }" onerror="this.src='logo/profile-icon-white.png'" />
         </div>
         <div class="conversation-item-info">
-            <div class="conversation-item-name">${otherParticipant.name}</div>
+            <div class="conversation-item-name">${
+              conversation.other_user_info.username
+            }</div>
             <div class="conversation-item-message">
                 ${conversation.last_message || "Chưa có tin nhắn"}
             </div>
@@ -244,73 +247,126 @@ function createConversationElement(conversation) {
 function getOtherParticipant(conversation) {
   const currentUserId = currentUser?.localId || currentUser?.uid;
 
-  // Use the other_user_info if available from the backend
-  if (conversation.other_user_info) {
-    return {
-      id: conversation.other_user_info.id,
-      name:
-        conversation.other_user_info.name ||
-        conversation.other_user_info.username ||
-        "Unknown User",
-      status: "online", // We can implement real status later
-    };
+  // Primary logic: Find the other user in the 'participants' array.
+  if (conversation.participants && Array.isArray(conversation.participants)) {
+    const other = conversation.participants.find((p) => {
+      // Try both id field (from Firebase) and localId/uid fields (from authentication)
+      return (
+        p &&
+        p.id !== currentUserId &&
+        p.localId !== currentUserId &&
+        p.uid !== currentUserId
+      );
+    });
+
+    if (other) {
+      return {
+        id: other.id || other.localId || other.uid,
+        name: other.username || other.name || "Unknown User",
+        profilePic: other.profilePic,
+      };
+    }
   }
 
-  // Fallback to determining other participant manually
-  let otherParticipantId;
-  if (conversation.created_user === currentUserId) {
-    otherParticipantId = conversation.other_user;
-  } else {
-    otherParticipantId = conversation.created_user;
-  }
-
-  // Create a more realistic display name
-  const displayName = otherParticipantId
-    ? `User (${otherParticipantId.substring(0, 8)}...)`
-    : "Unknown User";
-
+  // Fallback for safety, this should not be hit if the backend is correct.
+  console.warn(
+    "Could not find the other participant in conversation:",
+    conversation.id
+  );
   return {
-    id: otherParticipantId,
-    name: displayName,
-    status: "online", // We can implement real status later
+    id: "unknown",
+    name: "Unknown User",
+    profilePic: null,
   };
 }
 
+// =================================================================================
+// MESSAGE HANDLING
+// =================================================================================
+
 async function selectConversation(conversation) {
-  try {
-    currentConversation = conversation;
-
-    // Update UI
-    updateConversationSelection();
-    showConversationInterface();
-
-    // Load messages
-    await loadMessages(conversation.id);
-
-    // Start polling for new messages
-    startMessagePolling();
-  } catch (error) {
-    console.error("Error selecting conversation:", error);
-    showError("Không thể tải cuộc trò chuyện");
+  if (currentConversation?.id === conversation.id && websocket) {
+    return; // Avoid reloading the same conversation if websocket is connected
   }
+
+  currentConversation = conversation;
+  showConversationInterface();
+  updateConversationSelection();
+
+  // Close previous WebSocket connection if it exists
+  if (websocket) {
+    websocket.onclose = null; // Prevent onclose handler from running on manual close
+    websocket.close();
+  }
+
+  // Load message history first
+  await loadMessages(conversation.id);
+
+  // Establish a new WebSocket connection
+  const token =
+    localStorage.getItem("idToken") || sessionStorage.getItem("idToken");
+  if (!token) {
+    showError("Authentication token not found.");
+    return;
+  }
+
+  const wsBaseUrl = API_BASE_URL.replace(/^http/, "ws").replace("/api", "");
+  const wsUrl = `${wsBaseUrl}/ws/conversations/${conversation.id}?token=${token}`;
+
+  console.log(`Connecting to WebSocket: ${wsUrl}`);
+  websocket = new WebSocket(wsUrl);
+
+  websocket.onopen = () => {
+    console.log("✅ WebSocket connection established for:", conversation.id);
+  };
+
+  websocket.onmessage = (event) => {
+    const message = JSON.parse(event.data);
+
+    if (message.type === "status") {
+      console.log("Status update:", message.message);
+      appendStatusMessage(message.message);
+    } else if (message.type === "error") {
+      console.error("WebSocket error from server:", message.message);
+      showError(message.message);
+    } else {
+      currentMessages.push(message);
+      appendMessage(message);
+    }
+  };
+
+  websocket.onerror = (error) => {
+    console.error("WebSocket error:", error);
+    showError("Kết nối tin nhắn bị gián đoạn. Vui lòng tải lại trang.");
+  };
+
+  websocket.onclose = (event) => {
+    console.log("WebSocket connection closed:", event.reason, event.code);
+    websocket = null;
+    if (!event.wasClean) {
+      showError("Mất kết nối tin nhắn. Đang cố gắng kết nối lại...");
+      // Optional: Implement reconnection logic here
+    }
+  };
 }
 
 function updateConversationSelection() {
-  // Remove active class from all conversation items
-  document.querySelectorAll(".conversation-item").forEach((item) => {
-    item.classList.remove("active");
+  const conversationItems = document.querySelectorAll(".conversation-item");
+  conversationItems.forEach((item) => {
+    item.classList.remove("selected");
   });
 
-  // Add active class to current selection
-  const conversationItems = document.querySelectorAll(".conversation-item");
-  const currentConversationIndex = conversations.findIndex(
-    (conversation) => conversation.id === currentConversation.id
-  );
-  if (
-    currentConversationIndex >= 0 &&
-    conversationItems[currentConversationIndex]
-  ) {
-    conversationItems[currentConversationIndex].classList.add("active");
+  const selectedItem = Array.from(conversationItems).find((item) => {
+    const nameElement = item.querySelector(".conversation-item-name");
+    if (nameElement) {
+      const otherParticipant = getOtherParticipant(currentConversation);
+      return nameElement.textContent === otherParticipant.username;
+    }
+    return false;
+  });
+
+  if (selectedItem) {
+    selectedItem.classList.add("selected");
   }
 }
 
@@ -330,27 +386,22 @@ function showConversationInterface() {
 
   // Update header avatar
   const headerAvatar = document.getElementById("conversationUserAvatar");
-  if (headerAvatar && otherParticipant.profilePic) {
-    headerAvatar.src = `${API_BASE_URL.replace("/api", "")}${
-      otherParticipant.profilePic
-    }`;
-    headerAvatar.onerror = function () {
-      this.src = "logo/profile-icon-white.png";
-    };
-  }
+  headerAvatar.src = otherParticipant.profilePic
+    ? `${API_BASE_URL.replace("/api", "")}${otherParticipant.profilePic}`
+    : "logo/profile-icon-white.png";
+  headerAvatar.onerror = () =>
+    (headerAvatar.src = "logo/profile-icon-white.png");
 }
 
 async function loadMessages(conversationId) {
   try {
+    showLoading(true);
     const token =
       localStorage.getItem("idToken") || sessionStorage.getItem("idToken");
     const response = await fetch(
       `${API_BASE_URL}/conversations/${conversationId}/messages`,
       {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
+        headers: { Authorization: `Bearer ${token}` },
       }
     );
 
@@ -359,179 +410,159 @@ async function loadMessages(conversationId) {
       currentMessages = data.data || [];
       renderMessages();
     } else {
-      throw new Error("Failed to load messages");
+      throw new Error(`Failed to load messages: ${response.statusText}`);
     }
   } catch (error) {
-    console.error("Error loading messages:", error);
+    console.error(`Error loading messages for ${conversationId}:`, error);
     document.getElementById("messagesList").innerHTML =
-      '<div class="loading-message">Không thể tải tin nhắn</div>';
+      '<div class="error-message">Không thể tải tin nhắn.</div>';
+  } finally {
+    showLoading(false);
   }
 }
 
 function renderMessages() {
-  const messagesList = document.getElementById("messagesList");
-  messagesList.innerHTML = "";
-
-  if (currentMessages.length === 0) {
-    messagesList.innerHTML =
-      '<div class="loading-message">Chưa có tin nhắn nào</div>';
-    return;
-  }
-
+  const messageList = document.getElementById("messagesList");
+  messageList.innerHTML = "";
   currentMessages.forEach((message) => {
     const messageElement = createMessageElement(message);
-    messagesList.appendChild(messageElement);
+    messageList.appendChild(messageElement);
   });
+  scrollToBottom();
+}
 
-  // Scroll to bottom
+function appendMessage(message) {
+  // Prevent duplicates if a message arrives on WS that was also added optimistically
+  if (document.getElementById(`msg-${message.id}`)) {
+    return;
+  }
+  const messageList = document.getElementById("messagesList");
+  const messageElement = createMessageElement(message);
+  messageList.appendChild(messageElement);
+  scrollToBottom();
+}
+
+function appendStatusMessage(statusText) {
+  const messageList = document.getElementById("messagesList");
+  const statusElement = document.createElement("div");
+  statusElement.className = "status-message";
+  statusElement.textContent = statusText;
+  messageList.appendChild(statusElement);
   scrollToBottom();
 }
 
 function createMessageElement(message) {
-  const div = document.createElement("div");
-  const currentUserId = currentUser?.localId || currentUser?.uid;
-  const isSent = message.sender_id === currentUserId;
+  const isCurrentUser =
+    message.sender_id === (currentUser?.localId || currentUser?.uid);
+  const messageWrapper = document.createElement("div");
+  messageWrapper.className = `message-wrapper ${
+    isCurrentUser ? "sent" : "received"
+  }`;
+  messageWrapper.id = `msg-${message.id}`;
 
-  // Debug logging
-  console.log("🔍 Message Classification Debug:");
-  console.log("Current User ID:", currentUserId);
-  console.log("Message Sender ID:", message.sender_id);
-  console.log("Is Sent?", isSent);
-  console.log("Message Content:", message.content);
-  console.log("---");
+  const messageBubble = document.createElement("div");
+  messageBubble.className = "message-bubble";
 
-  div.className = `message ${isSent ? "sent" : "received"}`;
-
-  // Add inline styles as fallback to ensure positioning works
-  if (isSent) {
-    div.style.display = "flex";
-    div.style.justifyContent = "flex-end";
-    div.style.width = "fit-content";
-    div.style.maxWidth = "85%";
-    div.style.marginBottom = "15px";
-    div.style.marginLeft = "auto";
-    div.style.paddingRight = "10px";
-  } else {
-    div.style.display = "flex";
-    div.style.justifyContent = "flex-start";
-    div.style.width = "fit-content";
-    div.style.maxWidth = "85%";
-    div.style.marginBottom = "15px";
-    div.style.marginRight = "auto";
-    div.style.paddingLeft = "10px";
-  }
-
-  // Get sender info for display
-  let senderName = "You";
-  let senderInitial = "Y";
+  // Get sender's profile picture
   let senderProfilePic = null;
+  let senderName = "";
 
-  if (!isSent) {
-    if (currentConversation && currentConversation.other_user_info) {
-      senderName = currentConversation.other_user_info.name || "Other";
-      senderInitial = senderName.charAt(0).toUpperCase();
-      senderProfilePic = currentConversation.other_user_info.profilePic;
-    } else {
-      senderName = "Other";
-      senderInitial = "O";
-    }
+  if (isCurrentUser) {
+    senderProfilePic = currentUser?.profilePic || null;
+    senderName = currentUser?.username || currentUser?.name || "You";
   } else {
-    if (currentUser && currentUser.displayName) {
-      senderName = currentUser.displayName;
-      senderInitial = senderName.charAt(0).toUpperCase();
-    } else {
-      senderInitial = "Y";
-    }
-    // For sent messages, we could load the current user's profile picture
-    // For now, we'll use the initial approach
+    const otherParticipant = getOtherParticipant(currentConversation);
+    senderProfilePic = otherParticipant?.profilePic || null;
+    senderName =
+      otherParticipant?.name || message.sender_name || "Unknown User";
   }
 
-  const messageContentStyle = isSent
-    ? `background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-radius: 18px; padding: 12px 16px; max-width: 70%; margin-left: auto; word-wrap: break-word; box-shadow: 0 2px 8px rgba(0,0,0,0.1);`
-    : `background: white; color: #333; border: 1px solid #e0e0e0; border-radius: 18px; padding: 12px 16px; max-width: 70%; margin-right: auto; word-wrap: break-word; box-shadow: 0 2px 8px rgba(0,0,0,0.1);`;
+  const avatarContent = createAvatarContent(
+    senderProfilePic,
+    senderName?.charAt(0) || "U",
+    isCurrentUser
+  );
 
-  const avatarStyle = isSent
-    ? `width: 32px; height: 32px; border-radius: 50%; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 600; margin: 0 8px; flex-shrink: 0; overflow: hidden;`
-    : `width: 32px; height: 32px; border-radius: 50%; background: #e0e0e0; color: #666; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 600; margin: 0 8px; flex-shrink: 0; overflow: hidden;`;
+  // Handle different timestamp field names from different sources
+  const messageTime =
+    message.timestamp || message.time_sent || new Date().toISOString();
 
-  // Create avatar content - either image or initial
-  const createAvatarContent = (profilePic, initial, isCurrentUser = false) => {
-    if (profilePic) {
-      const picSrc = `${API_BASE_URL.replace("/api", "")}${profilePic}`;
-      return `<img src="${picSrc}" alt="${initial}" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.style.display='none'; this.parentElement.innerHTML='${initial}';" />`;
-    }
-    return initial;
-  };
-
-  div.innerHTML = `
-        ${
-          !isSent
-            ? `<div class="message-avatar" style="${avatarStyle}">${createAvatarContent(
-                senderProfilePic,
-                senderInitial
-              )}</div>`
-            : ""
-        }
-        <div class="message-content" style="${messageContentStyle}">
-            <div class="message-text" style="font-size: 15px; line-height: 1.4; margin-bottom: 4px;">${escapeHtml(
-              message.content
-            )}</div>
-            <div class="message-time" style="font-size: 11px; opacity: 0.7; margin-top: 5px; text-align: ${
-              isSent ? "right" : "left"
-            }; color: ${
-    isSent ? "rgba(255,255,255,0.8)" : "#999"
-  };">${formatTime(message.time_sent)}</div>
+  messageBubble.innerHTML = `
+        <div class="message-sender">${escapeHtml(senderName)}</div>
+        <div class="message-content">
+            <p class="message-text">${escapeHtml(message.content || "")}</p>
         </div>
-        ${
-          isSent
-            ? `<div class="message-avatar sent-avatar" style="${avatarStyle}">${createAvatarContent(
-                null,
-                senderInitial,
-                true
-              )}</div>`
-            : ""
-        }
+        <div class="message-meta">
+            <span class="timestamp">${formatTime(messageTime)}</span>
+        </div>
     `;
 
-  return div;
+  if (isCurrentUser) {
+    messageWrapper.appendChild(messageBubble);
+    messageWrapper.appendChild(avatarContent);
+  } else {
+    messageWrapper.appendChild(avatarContent);
+    messageWrapper.appendChild(messageBubble);
+  }
+
+  return messageWrapper;
 }
+
+const createAvatarContent = (profilePic, initial, isCurrentUser = false) => {
+  const avatar = document.createElement("div");
+  avatar.className = `user-avatar message-avatar ${
+    isCurrentUser ? "avatar-sent" : "avatar-received"
+  }`;
+
+  if (profilePic) {
+    const img = document.createElement("img");
+    img.src = `${API_BASE_URL.replace("/api", "")}${profilePic}`;
+    img.alt = initial;
+    img.onerror = () => {
+      // Fallback to initial if image fails
+      const initialSpan = document.createElement("span");
+      initialSpan.textContent = initial;
+      avatar.innerHTML = "";
+      avatar.appendChild(initialSpan);
+    };
+    avatar.appendChild(img);
+  } else {
+    const initialSpan = document.createElement("span");
+    initialSpan.textContent = initial;
+    avatar.appendChild(initialSpan);
+  }
+
+  return avatar;
+};
 
 async function sendMessage() {
   const messageInput = document.getElementById("messageInput");
   const content = messageInput.value.trim();
 
-  if (!content || !currentConversation) return;
+  if (!content || !currentConversation) {
+    return;
+  }
 
-  try {
-    const token =
-      localStorage.getItem("idToken") || sessionStorage.getItem("idToken");
+  if (websocket && websocket.readyState === WebSocket.OPEN) {
+    // Optimistically create a message object to display immediately
+    const optimisticMessage = {
+      id: `temp-${Date.now()}`, // Temporary ID
+      sender_id: currentUser?.localId || currentUser?.uid,
+      sender_name: currentUser?.username || "Me",
+      content: content,
+      timestamp: new Date().toISOString(),
+    };
+    // appendMessage(optimisticMessage);
 
-    const response = await fetch(
-      `${API_BASE_URL}/conversations/${currentConversation.id}/messages`,
-      {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          content: content,
-        }),
-      }
-    );
+    // Send the message via WebSocket
+    websocket.send(content);
 
-    if (response.ok) {
-      messageInput.value = "";
-      // Reload messages to get the new message
-      await loadMessages(currentConversation.id);
-      // Reload conversations to update last message
-      await loadConversations();
-    } else {
-      throw new Error("Failed to send message");
-    }
-  } catch (error) {
-    console.error("Error sending message:", error);
-    showError("Không thể gửi tin nhắn");
+    // Clear the input
+    messageInput.value = "";
+  } else {
+    showError("Không có kết nối tin nhắn. Vui lòng thử lại.");
+    console.error("WebSocket is not connected or in a ready state.");
+    // You might want to try re-establishing the connection here
   }
 }
 
@@ -787,64 +818,58 @@ function closeFriendDetailModal() {
 }
 
 async function startChatWithUser(user) {
-  try {
-    showLoading(true);
+  closeNewChatModal();
+  closeFriendDetailModal();
+  showLoading(true);
 
+  try {
     const token =
       localStorage.getItem("idToken") || sessionStorage.getItem("idToken");
+
+    // Check if a conversation already exists
+    const existingConversation = conversations.find((conv) =>
+      conv.participants?.some((p) => p.id === user.id)
+    );
+
+    if (existingConversation) {
+      selectConversation(existingConversation);
+      return;
+    }
+
+    // If not, create a new one
     const response = await fetch(`${API_BASE_URL}/conversations`, {
       method: "POST",
       headers: {
         Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({
-        other_user_email: user.email,
-      }),
+      body: JSON.stringify({ other_user_id: user.id }),
     });
 
     if (response.ok) {
-      const data = await response.json();
-      closeNewChatModal();
+      const newConversationData = await response.json();
 
-      // Reload conversations and select the new/existing one
+      // The backend should return the full new conversation object
+      // For now, we'll manually create it or reload all conversations
       await loadConversations();
-      const conversation = conversations.find(
-        (conversation) => conversation.id === data.conversation_id
+      const newConversation = conversations.find(
+        (c) => c.id === newConversationData.conversation_id
       );
-      if (conversation) {
-        await selectConversation(conversation);
+
+      if (newConversation) {
+        selectConversation(newConversation);
       }
     } else {
-      throw new Error("Failed to create conversation");
+      const error = await response.json();
+      throw new Error(
+        `Failed to create conversation: ${error.detail || response.statusText}`
+      );
     }
   } catch (error) {
-    console.error("Error starting conversation:", error);
-    showError("Không thể bắt đầu cuộc trò chuyện");
+    console.error("Error starting chat:", error);
+    showError("Không thể bắt đầu cuộc trò chuyện. Vui lòng thử lại.");
   } finally {
     showLoading(false);
-  }
-}
-
-// Message polling for real-time updates
-function startMessagePolling() {
-  // Clear existing polling
-  if (messagePollingInterval) {
-    clearInterval(messagePollingInterval);
-  }
-
-  // Poll for new messages every 3 seconds
-  messagePollingInterval = setInterval(async () => {
-    if (currentConversation) {
-      await loadMessages(currentConversation.id);
-    }
-  }, 3000);
-}
-
-function stopMessagePolling() {
-  if (messagePollingInterval) {
-    clearInterval(messagePollingInterval);
-    messagePollingInterval = null;
   }
 }
 
@@ -882,33 +907,44 @@ function filterConversations(query) {
 function formatTime(dateString) {
   if (!dateString) return "";
 
-  const date = new Date(dateString);
-  const now = new Date();
-  const diff = now - date;
+  try {
+    const date = new Date(dateString);
 
-  // Less than 1 minute
-  if (diff < 60000) {
-    return "Vừa xong";
+    // Check if the date is valid
+    if (isNaN(date.getTime())) {
+      return "Invalid date";
+    }
+
+    const now = new Date();
+    const diff = now - date;
+
+    // Less than 1 minute
+    if (diff < 60000) {
+      return "Vừa xong";
+    }
+
+    // Less than 1 hour
+    if (diff < 3600000) {
+      const minutes = Math.floor(diff / 60000);
+      return `${minutes} phút trước`;
+    }
+
+    // Less than 24 hours
+    if (diff < 86400000) {
+      const hours = Math.floor(diff / 3600000);
+      return `${hours} giờ trước`;
+    }
+
+    // More than 24 hours
+    return date.toLocaleDateString("vi-VN", {
+      day: "2-digit",
+      month: "2-digit",
+      year: date.getFullYear() !== now.getFullYear() ? "numeric" : undefined,
+    });
+  } catch (error) {
+    console.error("Error formatting time:", error, "Input:", dateString);
+    return "Unknown time";
   }
-
-  // Less than 1 hour
-  if (diff < 3600000) {
-    const minutes = Math.floor(diff / 60000);
-    return `${minutes} phút trước`;
-  }
-
-  // Less than 24 hours
-  if (diff < 86400000) {
-    const hours = Math.floor(diff / 3600000);
-    return `${hours} giờ trước`;
-  }
-
-  // More than 24 hours
-  return date.toLocaleDateString("vi-VN", {
-    day: "2-digit",
-    month: "2-digit",
-    year: date.getFullYear() !== now.getFullYear() ? "numeric" : undefined,
-  });
 }
 
 function escapeHtml(text) {
@@ -947,7 +983,10 @@ function clearConversation() {
 
 // Clean up when leaving the page
 window.addEventListener("beforeunload", function () {
-  stopMessagePolling();
+  if (websocket) {
+    websocket.onclose = null;
+    websocket.close();
+  }
 });
 
 // Close modal when clicking outside
